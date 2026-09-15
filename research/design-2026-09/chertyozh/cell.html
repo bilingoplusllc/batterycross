@@ -1,0 +1,387 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LR44 &#183; &#216;11.6 &#215; 5.4 mm, 1.50 V &#183; BatteryCross</title>
+<meta name="description" content="LR44 drawn to size: the &#216;11.6 by 5.4 mm shell, everything that shares it, and what each voltage difference costs.">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  color-scheme:light dark;
+  --mono:ui-monospace,"SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  /* ISO 3098 lettering heights (1.8 / 2.5 / 3.5 / 5 / 7 / 10 / 14 mm) in rem */
+  --t25:0.591rem; --t35:0.827rem; --t5:1.181rem;
+  --t7:1.654rem; --t10:2.362rem; --t14:3.307rem;
+  --u:1.181rem; --measure:33rem;
+  --lw-thin:1px; --lw-thick:2px;
+  --sc-fam:2; --sc-hero:6; --sc-sup:3;
+  --desk:#e6ebee; --paper:#f2f5f7; --field:#fbfcfd;
+  --ink:#101820; --ink-2:#4a5a66;
+  --hair:#7d8b95; --frame:#2b3a45;
+  --rule:#1f5f8b;
+  --alarm:#b3261e; --alarm-fill:#f7e7e5; --alarm-hair:#d9a49e;
+  --grid-fine:#e5ebef; --grid-bold:#d3dee5;
+  --slot:#dde4e9; --slot-ink:#4a5a66;
+  --hatch:#33475a;
+}
+@media (prefers-color-scheme:dark){:root{
+  --desk:#070b0e; --paper:#0e141a; --field:#131b22;
+  --ink:#e2e9ee; --ink-2:#9aabb6;
+  --hair:#5d6e79; --frame:#637887;
+  --rule:#7fb8dd;
+  --alarm:#ff8a6e; --alarm-fill:#2a1713; --alarm-hair:#7a3a2c;
+  --grid-fine:#161e26; --grid-bold:#1d2831;
+  --slot:#1a232b; --slot-ink:#9aabb6;
+  --hatch:#a8c0ce;
+}}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--ink);
+ font-family:var(--sans);font-size:var(--t5);line-height:1.6}
+h1,h2,h3,h4,p,ul,ol,figure,table,dl,dd{margin:0}
+ul{padding-left:1.15em}
+img,svg{max-width:100%}
+a{color:var(--rule);text-underline-offset:.18em}
+a:focus-visible,input:focus-visible,button:focus-visible{outline:var(--lw-thick) solid var(--alarm);outline-offset:2px}
+.defs{display:block;width:0;height:0;overflow:hidden}
+.vh-id,.lbl,.tb-k,.zone,.code,.nav a,.btn,.tag{font-family:var(--mono)}
+
+/* ---- the sheet ---------------------------------------------------------- */
+.desk{padding:0}
+@media (min-width:840px){.desk{padding:calc(var(--u)*1.6) calc(var(--u)*1.2)}}
+.sheet{max-width:1180px;margin:0 auto;background-color:var(--paper);
+ background-image:
+  repeating-linear-gradient(to right,var(--grid-fine) 0 1px,transparent 1px 5mm),
+  repeating-linear-gradient(to bottom,var(--grid-fine) 0 1px,transparent 1px 5mm);
+ border:var(--lw-thick) solid var(--frame);
+ outline:var(--lw-thin) solid var(--frame);outline-offset:-5px}
+.band{border-top:var(--lw-thin) solid var(--hair);padding:calc(var(--u)*1.4) calc(var(--u)*.9)}
+@media (min-width:720px){.band{padding:calc(var(--u)*1.7) calc(var(--u)*1.4)}}
+.stack{display:grid;gap:calc(var(--u)*.9)}
+.stack-l{display:grid;gap:calc(var(--u)*1.6)}
+.prose{max-width:var(--measure);display:grid;gap:calc(var(--u)*.7)}
+.prose p{font-size:var(--t5);line-height:1.6}
+
+/* ---- zone strip and title-block cells ----------------------------------- */
+.zones{display:flex;border-bottom:var(--lw-thin) solid var(--hair)}
+.zone{flex:1 1 0;text-align:center;font-size:var(--t25);line-height:1.9;
+ letter-spacing:.16em;color:var(--ink-2);border-right:var(--lw-thin) solid var(--hair)}
+.tb{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+ border-top:var(--lw-thin) solid var(--hair);border-left:var(--lw-thin) solid var(--hair)}
+.tb-c{padding:calc(var(--u)*.55) calc(var(--u)*.75);
+ border-right:var(--lw-thin) solid var(--hair);border-bottom:var(--lw-thin) solid var(--hair)}
+.tb-k{display:block;font-size:var(--t35);letter-spacing:.11em;color:var(--ink-2);line-height:1.4}
+.tb-v{display:block;font-family:var(--mono);font-size:var(--t35);letter-spacing:.02em;
+ line-height:1.4;font-variant-numeric:tabular-nums}
+h1.part{letter-spacing:.06em}
+@media (min-width:720px){h1.part{font-size:var(--t14)}}
+
+/* ---- masthead ------------------------------------------------------------ */
+.mast{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.8) calc(var(--u)*1.2);
+ align-items:baseline;justify-content:space-between;
+ padding:calc(var(--u)*.7) calc(var(--u)*.9)}
+@media (min-width:720px){.mast{padding:calc(var(--u)*.7) calc(var(--u)*1.4)}}
+.brand{font-family:var(--mono);font-size:var(--t7);letter-spacing:.12em;
+ text-transform:uppercase;line-height:1.2;color:var(--ink);text-decoration:none;display:block}
+.brand b{font-weight:700}
+.brand span{display:block;font-size:var(--t35);letter-spacing:.14em;color:var(--ink-2)}
+.nav{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.9)}
+.nav a{font-size:var(--t35);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--ink-2);text-decoration:none;border-bottom:var(--lw-thin) solid transparent;padding-bottom:2px}
+.nav a:hover,.nav a[aria-current]{color:var(--ink);border-bottom-color:var(--alarm)}
+
+/* ---- headings ------------------------------------------------------------ */
+h1{font-family:var(--mono);font-size:var(--t7);line-height:1.25;letter-spacing:.02em;
+ text-transform:uppercase;font-weight:700;max-width:var(--measure)}
+@media (min-width:720px){h1{font-size:var(--t10)}}
+.vh{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.5) var(--u);align-items:baseline;
+ border-bottom:var(--lw-thick) solid var(--frame);padding-bottom:calc(var(--u)*.35)}
+.vh-id{font-size:var(--t35);letter-spacing:.16em;color:var(--alarm);text-transform:uppercase}
+.vh-t{font-family:var(--mono);font-size:var(--t5);letter-spacing:.06em;
+ text-transform:uppercase;font-weight:700;line-height:1.4}
+@media (min-width:720px){.vh-t{font-size:var(--t7)}}
+.vh-n{font-family:var(--mono);font-size:var(--t35);color:var(--ink-2);letter-spacing:.06em;
+ margin-left:auto;text-transform:uppercase}
+.lbl{font-size:var(--t35);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);line-height:1.4}
+.cap{font-family:var(--mono);font-size:var(--t35);letter-spacing:.06em;color:var(--ink-2);
+ line-height:1.4;text-transform:uppercase}
+.note{font-family:var(--mono);font-size:var(--t35);letter-spacing:.01em;color:var(--ink-2);
+ line-height:1.55;max-width:var(--measure)}
+
+/* ---- drawing fields ------------------------------------------------------ */
+.field{background-color:var(--field);
+ background-image:
+  repeating-linear-gradient(to right,var(--grid-fine) 0 1px,transparent 1px 1mm),
+  repeating-linear-gradient(to bottom,var(--grid-fine) 0 1px,transparent 1px 1mm),
+  repeating-linear-gradient(to right,var(--grid-bold) 0 1px,transparent 1px 5mm),
+  repeating-linear-gradient(to bottom,var(--grid-bold) 0 1px,transparent 1px 5mm);
+ border:var(--lw-thin) solid var(--hair)}
+.scroller{overflow-x:auto;overscroll-behavior-x:contain}
+.scroller>*{display:block;flex:none}
+.pad-dwg{padding:calc(var(--u)*.7)}
+svg.dwg{display:block;width:calc(var(--w)*1mm*var(--sc));height:calc(var(--h)*1mm*var(--sc));max-width:none}
+svg.rail,svg.mb{display:block;max-width:none}
+svg.sw{display:inline-block;vertical-align:middle;
+ width:calc(var(--w)*1mm*var(--sc));height:calc(var(--h)*1mm*var(--sc));max-width:none}
+@media (max-width:719px){:root{--sc-hero:4.6;--sc-sup:2.4}}
+
+/* ---- drawing line types (ISO 128: two weights, 1:2) ---------------------- */
+svg text{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.body{fill-rule:evenodd;stroke:var(--ink);stroke-width:2px;vector-effect:non-scaling-stroke;
+ stroke-linejoin:round}
+.body.ghost{stroke-dasharray:11 3 1.5 3 1.5 3;fill-opacity:.52}
+.hl{stroke:var(--hatch);stroke-width:.11;fill:none}
+.hl-a{stroke:var(--alarm);stroke-width:.1;fill:none}
+.hl-b{stroke:var(--rule);stroke-width:1.3;fill:none}
+.dim,.ext,.lead,.cl,.brk{fill:none;stroke:var(--rule);stroke-width:1px;vector-effect:non-scaling-stroke}
+.ext.proj{stroke-dasharray:6 3}
+.cl{stroke-dasharray:14 3 2 3}
+.dim-f,.ah{fill:var(--rule);stroke:none}
+.dim-a,.brk-a{fill:none;stroke:var(--alarm);stroke-width:1px;vector-effect:non-scaling-stroke}
+.dim-a-f{fill:var(--alarm);stroke:none}
+.mask{fill:var(--field);stroke:none}
+.pol{stroke:var(--ink);stroke-width:2px;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.bal{fill:var(--field);stroke:var(--alarm);stroke-width:1px;vector-effect:non-scaling-stroke}
+.bar{fill:var(--rule)}.bar-f{fill:var(--rule)}
+.bar-a{fill:var(--alarm)}.bar-a-f{fill:var(--alarm)}
+.datum,.rdatum{fill:var(--ink)}
+.datum-o{fill:var(--field);stroke:var(--ink);stroke-width:1px;vector-effect:non-scaling-stroke}
+.arw{fill:none;stroke:var(--ink);stroke-width:2px;vector-effect:non-scaling-stroke}
+.arw-f{fill:var(--ink)}
+.arw-a{fill:none;stroke:var(--alarm);stroke-width:2px;vector-effect:non-scaling-stroke}
+.arw-a-f{fill:var(--alarm)}
+.tx{fill:var(--rule);letter-spacing:.02em}
+.tx-s{fill:var(--ink-2);letter-spacing:.04em}
+.tx-c{fill:var(--ink);letter-spacing:.06em;font-weight:700}
+.tx-a{fill:var(--alarm);letter-spacing:.04em;font-weight:700}
+.tx-b{fill:var(--alarm);font-weight:700}
+.tx-p{fill:var(--ink-2);letter-spacing:.08em}
+/* rail (pixel space) */
+.rdim{fill:none;stroke:var(--rule);stroke-width:1}
+.rdim-f{fill:var(--rule)}
+.rdim-a{fill:none;stroke:var(--alarm);stroke-width:1}
+.rdim-a-f{fill:var(--alarm)}
+.rext{fill:none;stroke:var(--rule);stroke-width:1;stroke-dasharray:5 3}
+.rext-a{fill:none;stroke:var(--alarm);stroke-width:1;stroke-dasharray:5 3}
+.rbrk{fill:none;stroke:var(--rule);stroke-width:1}
+.rbrk-a{fill:none;stroke:var(--alarm);stroke-width:1}
+.bandf{fill:url(#hx-band);fill-opacity:.5;stroke:var(--rule);stroke-width:1;stroke-dasharray:4 3}
+.rtx{fill:var(--rule);font-size:12px;letter-spacing:.04em}
+.rtx-s{fill:var(--ink-2);font-size:12px;letter-spacing:.04em}
+.rtx-c{fill:var(--ink);font-size:13px;font-weight:700;letter-spacing:.07em}
+.rtx-a{fill:var(--alarm);font-size:13px;font-weight:700;letter-spacing:.04em}
+
+/* ---- tables -------------------------------------------------------------- */
+table{border-collapse:collapse;width:100%;min-width:790px;font-family:var(--mono);
+ font-size:var(--t35);font-variant-numeric:tabular-nums;line-height:1.4}
+caption{text-align:left;font-size:var(--t35);letter-spacing:.06em;color:var(--ink-2);
+ text-transform:uppercase;padding-bottom:calc(var(--u)*.45)}
+th,td{text-align:left;padding:calc(var(--u)*.42) calc(var(--u)*.5);
+ border-bottom:var(--lw-thin) solid var(--hair);vertical-align:middle}
+thead th{border-bottom:var(--lw-thick) solid var(--frame);letter-spacing:.11em;
+ text-transform:uppercase;color:var(--ink-2);font-weight:400;white-space:nowrap}
+td.num,th.num{text-align:right;white-space:nowrap}
+tbody tr:hover{background:var(--field)}
+.code{font-weight:700;letter-spacing:.06em;font-size:var(--t5)}
+.code a{color:var(--ink);text-decoration-color:var(--rule)}
+.alt{display:block;color:var(--ink-2);letter-spacing:.06em}
+.st{white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
+.st-off{color:var(--ink-2)}
+.warn{color:var(--alarm);font-weight:700}
+.dash{color:var(--ink-2)}
+
+/* ---- search -------------------------------------------------------------- */
+.find{display:grid;gap:calc(var(--u)*.5);max-width:var(--measure)}
+.find-row{display:grid;gap:calc(var(--u)*.5);grid-template-columns:minmax(0,1fr)}
+@media (min-width:470px){.find-row{grid-template-columns:minmax(0,1fr) auto}}
+.find input{width:100%;min-width:0;font-family:var(--mono);font-size:var(--t7);
+ letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--field);
+ border:var(--lw-thick) solid var(--frame);padding:calc(var(--u)*.45) calc(var(--u)*.6)}
+.find input::placeholder{color:var(--ink-2);opacity:1}
+.btn{font-size:var(--t35);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;
+ color:var(--paper);background:var(--ink);border:var(--lw-thick) solid var(--ink);
+ padding:calc(var(--u)*.45) calc(var(--u)*.9)}
+.btn:hover{background:var(--rule);border-color:var(--rule)}
+.chips{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.4)}
+.chip{font-family:var(--mono);font-size:var(--t35);letter-spacing:.09em;text-decoration:none;
+ color:var(--ink);border:var(--lw-thin) solid var(--hair);background:var(--field);
+ padding:2px calc(var(--u)*.42)}
+.chip:hover{border-color:var(--rule);color:var(--rule)}
+
+/* ---- grids of cards ------------------------------------------------------ */
+.cards{display:grid;gap:calc(var(--u)*.9);grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.card{border:var(--lw-thin) solid var(--hair);background:var(--field);
+ padding:calc(var(--u)*.75);display:grid;gap:calc(var(--u)*.35);align-content:start}
+.card a{text-decoration:none;color:var(--ink);font-family:var(--mono);
+ font-size:var(--t5);letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.card a:hover{color:var(--rule)}
+.card p{font-size:var(--t35);line-height:1.5;color:var(--ink-2)}
+.card p.say{font-size:var(--t5);line-height:1.5;color:var(--ink)}
+.card.hot{border-color:var(--alarm-hair);background:var(--alarm-fill)}
+.card.hot .lbl{color:var(--alarm)}
+.hero{display:grid;gap:calc(var(--u)*1.6);grid-template-columns:1fr;align-items:start}
+@media (min-width:1000px){.hero{grid-template-columns:minmax(0,var(--measure)) minmax(0,1fr)}}
+.panel{border:var(--lw-thin) solid var(--hair);background:var(--field);
+ display:grid;gap:calc(var(--u)*.55);align-content:start;padding:calc(var(--u)*.8)}
+.figs dd{font-size:var(--t7);letter-spacing:.02em}
+@media (min-width:1000px){.figs dd{font-size:var(--t10)}}
+.two{display:grid;gap:calc(var(--u)*.9);grid-template-columns:1fr}
+@media (min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.legend{display:grid;gap:calc(var(--u)*.45);grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.lg{display:flex;gap:calc(var(--u)*.55);align-items:center;font-family:var(--mono);
+ font-size:var(--t35);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+.lg b{color:var(--ink);font-weight:700}
+.notes{display:grid;gap:calc(var(--u)*.55);list-style:none;padding:0;margin:0}
+.nt{display:grid;grid-template-columns:auto 1fr;gap:calc(var(--u)*.6);align-items:start}
+.nt-n{font-family:var(--mono);font-size:var(--t35);font-weight:700;color:var(--alarm);
+ border:var(--lw-thin) solid var(--alarm);border-radius:50%;width:1.7rem;height:1.7rem;
+ display:grid;place-items:center;line-height:1}
+.nt p{font-size:var(--t35);line-height:1.55;max-width:56ch}
+.nt p b{font-family:var(--mono);letter-spacing:.04em}
+
+/* ---- spec list ----------------------------------------------------------- */
+.spec{display:grid;grid-template-columns:auto 1fr;gap:0;border-top:var(--lw-thin) solid var(--hair)}
+.spec dt,.spec dd{font-family:var(--mono);font-size:var(--t35);line-height:1.4;
+ padding:calc(var(--u)*.42) calc(var(--u)*.5);border-bottom:var(--lw-thin) solid var(--hair)}
+.spec dt{letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2)}
+.spec dd{text-align:right;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+
+/* ---- ad slots ------------------------------------------------------------ */
+.slot{display:grid;gap:calc(var(--u)*.35);justify-items:center}
+.slot-box{display:grid;place-items:center;background:var(--slot);
+ border:var(--lw-thin) dashed var(--hair);width:min(var(--sw),100%);aspect-ratio:var(--sa)}
+.tag{font-size:var(--t35);letter-spacing:.16em;color:var(--slot-ink);text-transform:uppercase}
+.slot .cap{text-align:center}
+
+/* ---- columns ------------------------------------------------------------- */
+.cols{display:grid;gap:calc(var(--u)*1.6);grid-template-columns:1fr}
+@media (min-width:1024px){.cols{grid-template-columns:minmax(0,1fr) 300px}}
+.rail-col{display:grid;gap:calc(var(--u)*1.2);align-content:start}
+@media (min-width:1024px){.rail-col{position:sticky;top:calc(var(--u)*1.2)}}
+
+/* ---- status strip -------------------------------------------------------- */
+.status{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.6);align-items:center;
+ border:var(--lw-thin) solid var(--hair);background:var(--field);padding:calc(var(--u)*.55) calc(var(--u)*.75)}
+.status .k{font-family:var(--mono);font-size:var(--t35);letter-spacing:.13em;
+ text-transform:uppercase;color:var(--ink-2)}
+.status .v{font-family:var(--mono);font-size:var(--t5);letter-spacing:.06em;
+ text-transform:uppercase;font-weight:700}
+.hot{border-color:var(--alarm-hair);background:var(--alarm-fill)}
+.hot .v{color:var(--alarm)}
+
+/* ---- footer -------------------------------------------------------------- */
+.foot{border-top:var(--lw-thick) solid var(--frame)}
+.foot .cap{padding:calc(var(--u)*.7) calc(var(--u)*.9)}
+</style></head><body><svg class="defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<pattern id="hx-alk" width="0.72" height="0.72" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hl" x1="0" y1="0" x2="0" y2="0.72"/></pattern>
+<pattern id="hx-ago" width="1.05" height="1.05" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line class="hl" x1="0" y1="0" x2="0" y2="1.05"/></pattern>
+<pattern id="hx-li" width="0.95" height="0.95" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hl" x1="0" y1="0" x2="0" y2="0.95"/><line class="hl" x1="0" y1="0" x2="0.95" y2="0"/></pattern>
+<pattern id="hx-hg" width="0.38" height="0.38" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hl-a" x1="0" y1="0" x2="0" y2="0.38"/></pattern>
+<pattern id="hx-band" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hl-b" x1="0" y1="0" x2="0" y2="9"/></pattern>
+</defs></svg><div class="desk"><div class="sheet">
+<div class="zones" aria-hidden="true"><span class="zone">A</span><span class="zone">B</span><span class="zone">C</span><span class="zone">D</span><span class="zone">E</span><span class="zone">F</span><span class="zone">G</span><span class="zone">H</span></div>
+<header class="mast">
+<a class="brand" href="home.html"><b>BATTERYCROSS</b><span>CELL CROSS-REFERENCE, DRAWN TO SIZE</span></a>
+<nav class="nav" aria-label="Sections"><a href="home.html" aria-current="page">Index</a><a href="home.html#shells">Shells</a><a href="home.html#legend">Chemistry</a><a href="home.html#volts">Voltage</a><a href="home.html#status">Discontinued</a><a href="cell.html#method">Method</a></nav>
+</header>
+
+<section class="band stack">
+  <p class="cap">Index / Shell &#216;11.6 &#215; 5.4 / <b>LR44</b></p>
+  <h1 class="part">LR44</h1>
+  <div class="prose"><p>Alkaline manganese dioxide, 1.50 V nominal, in the most crowded shell in the
+  catalog: &#216;11.6 &#215; 5.4 mm, thirteen cells deep. It is still made, which makes it the cell
+  most of the dead codes in this shell point at.</p></div>
+  <div class="status"><span class="k">Status</span><svg class="sw" viewBox="0 0 20 3" style="--w:20;--h:3;--sc:2" aria-hidden="true"><line class="body" x1="0.6" y1="1.5" x2="19.4" y2="1.5"/></svg><span class="v">In production</span><span class="k">Line type</span><span class="k">Continuous thick</span></div>
+</section>
+
+<div class="band">
+<div class="cols">
+<div class="stack-l">
+
+  <section class="stack">
+    <div class="vh"><span class="vh-id">Detail A</span>
+      <h2 class="vh-t">LR44, enlarged and dimensioned</h2>
+      <span class="vh-n">See scale bar</span></div>
+    <div class="field scroller pad-dwg"><svg class="dwg" role="img" aria-labelledby="da-t da-d" viewBox="0 0 27 24" style="--w:27;--h:24;--sc:var(--sc-hero)"><title id="da-t">Detail A: LR44 drawn to size and dimensioned</title><desc id="da-d">An enlarged elevation of the LR44 cell, 11.6 millimeters in diameter and 5.4 millimeters tall, with the negative cap on top and the positive can below.</desc><line class="cl" x1="13.4" y1="6.4" x2="13.4" y2="15.8"/><line class="dim" x1="5.4" y1="13.8" x2="21.4" y2="13.8"/><line class="ext" x1="5.6" y1="13.8" x2="5.05" y2="14.42"/><line class="ext" x1="6.88" y1="13.8" x2="6.33" y2="14.42"/><line class="ext" x1="8.16" y1="13.8" x2="7.61" y2="14.42"/><line class="ext" x1="9.44" y1="13.8" x2="8.89" y2="14.42"/><line class="ext" x1="10.72" y1="13.8" x2="10.17" y2="14.42"/><line class="ext" x1="12" y1="13.8" x2="11.45" y2="14.42"/><line class="ext" x1="13.28" y1="13.8" x2="12.73" y2="14.42"/><line class="ext" x1="14.56" y1="13.8" x2="14.01" y2="14.42"/><line class="ext" x1="15.84" y1="13.8" x2="15.29" y2="14.42"/><line class="ext" x1="17.12" y1="13.8" x2="16.57" y2="14.42"/><line class="ext" x1="18.4" y1="13.8" x2="17.85" y2="14.42"/><line class="ext" x1="19.68" y1="13.8" x2="19.13" y2="14.42"/><line class="ext" x1="20.96" y1="13.8" x2="20.41" y2="14.42"/><path class="body" fill="url(#hx-alk)" d="M 9.32 8.4 H 17.48 Q 17.7 8.4 17.7 8.62 V 9.2 Q 17.7 9.5 18 9.5 H 18.9 Q 19.2 9.5 19.2 9.8 V 13.4 Q 19.2 13.8 18.8 13.8 H 8 Q 7.6 13.8 7.6 13.4 V 9.8 Q 7.6 9.5 7.9 9.5 H 8.8 Q 9.1 9.5 9.1 9.2 V 8.62 Q 9.1 8.4 9.32 8.4 Z"/><rect class="mask" x="12.4" y="8.52" width="2.0" height="0.86"/><line class="pol" x1="12.7" y1="8.95" x2="14.1" y2="8.95"/><rect class="mask" x="12.3" y="10.55" width="2.2" height="2.2"/><line class="pol" x1="12.6" y1="11.65" x2="14.2" y2="11.65"/><line class="pol" x1="13.4" y1="10.85" x2="13.4" y2="12.45"/><line class="ext" x1="7.6" y1="14.7" x2="7.6" y2="18.9"/><line class="ext" x1="19.2" y1="14.7" x2="19.2" y2="18.9"/><line class="dim" x1="7.6" y1="17.9" x2="19.2" y2="17.9"/><path class="dim-f" d="M 7.6 17.9 L 8.6 17.73 L 8.6 18.07 Z"/><path class="dim-f" d="M 19.2 17.9 L 18.2 18.07 L 18.2 17.73 Z"/><text class="tx" x="13.4" y="17.48" font-size="0.66" text-anchor="middle">&#216;11.6</text><line class="ext" x1="19.8" y1="8.4" x2="23.2" y2="8.4"/><line class="ext" x1="19.8" y1="13.8" x2="23.2" y2="13.8"/><line class="dim" x1="22.3" y1="8.4" x2="22.3" y2="13.8"/><path class="dim-f" d="M 22.3 8.4 L 22.47 9.4 L 22.13 9.4 Z"/><path class="dim-f" d="M 22.3 13.8 L 22.13 12.8 L 22.47 12.8 Z"/><text class="tx" x="22.85" y="11.331" font-size="0.66">5.4</text><circle class="bal" cx="24" cy="5.2" r="1.05"/><text class="tx-b" x="24" y="5.56" font-size="1" text-anchor="middle">1</text><line class="lead" x1="23.1" y1="6" x2="17.6" y2="9.1"/><text class="tx-p" x="1.6" y="8.1" font-size="0.56">CAP (-)</text><line class="lead" x1="4.6" y1="7.7" x2="7.2" y2="8.9"/><text class="tx-p" x="1.6" y="12.6" font-size="0.56">CAN (+)</text><line class="lead" x1="4.6" y1="12.2" x2="7.4" y2="11.9"/><line class="dim" x1="2" y1="21.4" x2="12" y2="21.4"/><line class="dim" x1="2" y1="21.4" x2="2" y2="22.1"/><line class="dim" x1="3" y1="21.4" x2="3" y2="21.8"/><line class="dim" x1="4" y1="21.4" x2="4" y2="21.8"/><line class="dim" x1="5" y1="21.4" x2="5" y2="21.8"/><line class="dim" x1="6" y1="21.4" x2="6" y2="21.8"/><line class="dim" x1="7" y1="21.4" x2="7" y2="22.1"/><line class="dim" x1="8" y1="21.4" x2="8" y2="21.8"/><line class="dim" x1="9" y1="21.4" x2="9" y2="21.8"/><line class="dim" x1="10" y1="21.4" x2="10" y2="21.8"/><line class="dim" x1="11" y1="21.4" x2="11" y2="21.8"/><line class="dim" x1="12" y1="21.4" x2="12" y2="22.1"/><text class="tx-s" x="2" y="22.744" font-size="0.56" text-anchor="middle">0</text><text class="tx-s" x="12" y="22.744" font-size="0.56" text-anchor="middle">10 mm</text></svg></div>
+    <p class="note">Negative cap on top, positive can below. Seating plane hatched. Two dimensions,
+    both from the data file.</p>
+  </section>
+
+  <section class="stack">
+    <div class="vh"><span class="vh-id">Table 2</span><h2 class="vh-t">Figures on file</h2></div>
+    <dl class="spec"><dt>Designation</dt><dd>LR44</dd><dt>Also known as</dt><dd>A76 &#183; AG13</dd><dt>IEC</dt><dd>LR44</dd><dt>Chemistry</dt><dd>Alkaline MnO2</dd><dt>Nominal voltage</dt><dd>1.50 V</dd><dt>Diameter</dt><dd>11.6 mm</dd><dt>Height</dt><dd>5.4 mm</dd><dt>Capacity</dt><dd>150 mAh</dd><dt>Shell population</dt><dd>13 cells</dd><dt>Status</dt><dd>In production</dd></dl>
+  </section>
+
+  <section class="stack" id="voltage">
+    <div class="vh"><span class="vh-id">View B</span>
+      <h2 class="vh-t">What the voltage difference costs</h2>
+      <span class="vh-n">Broken scale</span></div>
+    <div class="field scroller pad-dwg"><svg class="rail" role="img" aria-labelledby="vb-t vb-d" viewBox="0 0 520 124" width="520" height="124"><title id="vb-t">View B: nominal voltage, dimensioned from the LR44 datum</title><desc id="vb-d">A broken scale. PX625 sits 0.15 volts below the 1.50 volt datum, SR44 sits 0.05 volts above it and inside the hatched band, and CR2032 sits 1.50 volts above it, beyond the break.</desc><rect class="bandf" x="185" y="61" width="96.667" height="15"/><text class="rtx-s" x="289.667" y="71">+/-0.05</text><line class="rdim" x1="20" y1="76" x2="500" y2="76"/><line class="rdim" x1="40" y1="76" x2="40" y2="82"/><text class="rtx-s" x="40" y="95" text-anchor="middle">1.30</text><line class="rdim" x1="88.333" y1="76" x2="88.333" y2="82"/><text class="rtx-s" x="88.333" y="95" text-anchor="middle">1.35</text><line class="rdim" x1="136.667" y1="76" x2="136.667" y2="82"/><text class="rtx-s" x="136.667" y="95" text-anchor="middle">1.40</text><line class="rdim" x1="185" y1="76" x2="185" y2="82"/><text class="rtx-s" x="185" y="95" text-anchor="middle">1.45</text><line class="rdim" x1="233.333" y1="76" x2="233.333" y2="82"/><text class="rtx-s" x="233.333" y="95" text-anchor="middle">1.50</text><line class="rdim" x1="281.667" y1="76" x2="281.667" y2="82"/><text class="rtx-s" x="281.667" y="95" text-anchor="middle">1.55</text><line class="rdim" x1="330" y1="76" x2="330" y2="82"/><text class="rtx-s" x="330" y="95" text-anchor="middle">1.60</text><path class="rbrk" d="M 352 85 L 360 67 L 372 85 L 380 67"/><line class="rdim" x1="440" y1="76" x2="440" y2="82"/><text class="rtx-s" x="440" y="95" text-anchor="middle">3.00</text><text class="rtx-s" x="20" y="114">VOLTS, NOMINAL &#183; SCALE BROKEN BETWEEN 1.60 AND 3.00</text><line class="rext-a" x1="88.333" y1="18" x2="88.333" y2="76"/><text class="rtx-c" x="88.333" y="14" text-anchor="middle">PX625</text><line class="rext" x1="233.333" y1="18" x2="233.333" y2="76"/><text class="rtx-c" x="233.333" y="14" text-anchor="middle">LR44</text><line class="rext" x1="281.667" y1="18" x2="281.667" y2="76"/><text class="rtx-c" x="281.667" y="14" text-anchor="middle">SR44</text><line class="rext-a" x1="440" y1="18" x2="440" y2="76"/><text class="rtx-c" x="440" y="14" text-anchor="middle">CR2032</text><path class="rdatum" d="M 233.333 76 L 228.333 85 L 238.333 85 Z"/><line class="rdim" x1="233.333" y1="62" x2="281.667" y2="62"/><path class="rdim-f" d="M 233.333 62 L 241.333 59.4 L 241.333 64.6 Z"/><path class="rdim-f" d="M 281.667 62 L 273.667 64.6 L 273.667 59.4 Z"/><text class="rtx" x="257.5" y="57" text-anchor="middle">+0.05 V</text><line class="rdim-a" x1="88.333" y1="48" x2="233.333" y2="48"/><path class="rdim-a-f" d="M 88.333 48 L 96.333 45.4 L 96.333 50.6 Z"/><path class="rdim-a-f" d="M 233.333 48 L 225.333 50.6 L 225.333 45.4 Z"/><text class="rtx-a" x="160.833" y="43" text-anchor="middle">-0.15 V</text><line class="rdim-a" x1="233.333" y1="36" x2="352" y2="36"/><line class="rdim-a" x1="380" y1="36" x2="440" y2="36"/><path class="rdim-a-f" d="M 233.333 36 L 241.333 33.4 L 241.333 38.6 Z"/><path class="rdim-a-f" d="M 440 36 L 432 38.6 L 432 33.4 Z"/><path class="rbrk-a" d="M 352 42 L 360 30 L 372 42 L 380 30"/><text class="rtx-a" x="318" y="31" text-anchor="middle">+1.50 V</text></svg></div>
+    <p class="note">LR44 is the datum. The hatched band is &#177;0.05 V, the spread a single cell
+    walks through as it runs down. Anything outside that band is a permanent offset, not noise.</p>
+  </section>
+
+  <section class="stack">
+    <div class="vh"><span class="vh-id">View C</span>
+      <h2 class="vh-t">Instead of this, use that</h2></div>
+    <div class="field scroller pad-dwg"><svg class="dwg" role="img" aria-labelledby="vc-t vc-d" viewBox="0 0 50 27" style="--w:50;--h:27;--sc:var(--sc-sup)"><title id="vc-t">View C: supersession</title><desc id="vc-d">303 is superseded by SR44 with no change in voltage. PX625 has no exact replacement: SR44 fits the same well but sits 0.20 volts above it.</desc><path class="body ghost" fill="url(#hx-ago)" d="M 4.72 5 H 12.88 Q 13.1 5 13.1 5.22 V 5.8 Q 13.1 6.1 13.4 6.1 H 14.3 Q 14.6 6.1 14.6 6.4 V 10 Q 14.6 10.4 14.2 10.4 H 3.4 Q 3 10.4 3 10 V 6.4 Q 3 6.1 3.3 6.1 H 4.2 Q 4.5 6.1 4.5 5.8 V 5.22 Q 4.5 5 4.72 5 Z"/><path class="body" fill="url(#hx-ago)" d="M 32.72 5 H 40.88 Q 41.1 5 41.1 5.22 V 5.8 Q 41.1 6.1 41.4 6.1 H 42.3 Q 42.6 6.1 42.6 6.4 V 10 Q 42.6 10.4 42.2 10.4 H 31.4 Q 31 10.4 31 10 V 6.4 Q 31 6.1 31.3 6.1 H 32.2 Q 32.5 6.1 32.5 5.8 V 5.22 Q 32.5 5 32.72 5 Z"/><line class="arw" x1="16.4" y1="7.7" x2="28.6" y2="7.7"/><path class="arw-f" d="M 29.6 7.7 L 28.1 8.35 L 28.1 7.05 Z"/><text class="tx-c" x="22.5" y="6.4" font-size="1.45" text-anchor="middle">0.00 V</text><text class="tx-c" x="8.8" y="12.7" font-size="1.45" text-anchor="middle">303</text><text class="tx-c" x="36.8" y="12.7" font-size="1.45" text-anchor="middle">SR44</text><path class="body ghost" fill="url(#hx-hg)" d="M 4.72 18 H 12.88 Q 13.1 18 13.1 18.22 V 18.8 Q 13.1 19.1 13.4 19.1 H 14.3 Q 14.6 19.1 14.6 19.4 V 23 Q 14.6 23.4 14.2 23.4 H 3.4 Q 3 23.4 3 23 V 19.4 Q 3 19.1 3.3 19.1 H 4.2 Q 4.5 19.1 4.5 18.8 V 18.22 Q 4.5 18 4.72 18 Z"/><path class="body" fill="url(#hx-ago)" d="M 32.72 18 H 40.88 Q 41.1 18 41.1 18.22 V 18.8 Q 41.1 19.1 41.4 19.1 H 42.3 Q 42.6 19.1 42.6 19.4 V 23 Q 42.6 23.4 42.2 23.4 H 31.4 Q 31 23.4 31 23 V 19.4 Q 31 19.1 31.3 19.1 H 32.2 Q 32.5 19.1 32.5 18.8 V 18.22 Q 32.5 18 32.72 18 Z"/><line class="arw-a" x1="16.4" y1="20.7" x2="28.6" y2="20.7"/><path class="arw-a-f" d="M 29.6 20.7 L 28.1 21.35 L 28.1 20.05 Z"/><text class="tx-a" x="22.5" y="19.4" font-size="1.45" text-anchor="middle">+0.20 V</text><line class="arw-a" x1="21.6" y1="19.7" x2="21.6" y2="21.7"/><line class="arw-a" x1="23.4" y1="19.7" x2="23.4" y2="21.7"/><text class="tx-c" x="8.8" y="25.7" font-size="1.45" text-anchor="middle">PX625</text><text class="tx-c" x="36.8" y="25.7" font-size="1.45" text-anchor="middle">SR44</text></svg></div>
+    <div class="two">
+      <div class="card"><span class="lbl">303 &#8594; SR44</span>
+        <p class="say">Same shell, same chemistry, same 1.55 V. An arrow with nothing
+        written on it: the substitution costs nothing.</p></div>
+      <div class="card hot">
+        <span class="lbl">PX625 &#8594; no exact match</span>
+        <p class="say">Identical well, 0.20 V high against a 1.35 V scale. The barred
+        arrow is not decoration; it is the answer.</p></div>
+    </div>
+  </section>
+
+  <section class="stack" id="family">
+    <div class="vh"><span class="vh-id">View A</span>
+      <h2 class="vh-t">Everything sharing this shell</h2>
+      <span class="vh-n">Scale 2:1 &#183; pan to read</span></div>
+    <div class="field scroller pad-dwg"><svg class="dwg" role="img" aria-labelledby="va-t va-d" viewBox="0 0 138 41" style="--w:138;--h:41;--sc:var(--sc-fam)"><title id="va-t">View A: seven cells drawn to size on one seating datum</title><desc id="va-d">Six cells share a diameter of 11.6 millimeters. Four stand 5.4 millimeters tall, two stand 4.2 millimeters tall, and CR2032 is 20.0 by 3.2 millimeters. A lower band dimensions each nominal voltage against 1.50 volts.</desc><path class="dim" d="M 5 4.7 V 3.6 H 101.6 V 4.7"/><text class="tx-s" x="53.3" y="2.9" font-size="1.5" text-anchor="middle">ONE SHELL DIAMETER / SIX CELLS</text><line class="ext" x1="5" y1="17.8" x2="5" y2="6.4"/><line class="ext" x1="16.6" y1="17.8" x2="16.6" y2="6.4"/><line class="dim" x1="5" y1="7.4" x2="16.6" y2="7.4"/><path class="dim-f" d="M 5 7.4 L 6 7.23 L 6 7.57 Z"/><path class="dim-f" d="M 16.6 7.4 L 15.6 7.57 L 15.6 7.23 Z"/><text class="tx" x="10.8" y="6.8" font-size="1.5" text-anchor="middle">&#216;11.6</text><line class="ext" x1="113" y1="20" x2="113" y2="6.4"/><line class="ext" x1="133" y1="20" x2="133" y2="6.4"/><line class="dim" x1="113" y1="7.4" x2="133" y2="7.4"/><path class="dim-f" d="M 113 7.4 L 114 7.23 L 114 7.57 Z"/><path class="dim-f" d="M 133 7.4 L 132 7.57 L 132 7.23 Z"/><text class="tx" x="123" y="6.8" font-size="1.5" text-anchor="middle">&#216;20</text><line class="ext proj" x1="3.4" y1="18.6" x2="105" y2="18.6"/><line class="ext" x1="101.6" y1="19.8" x2="105.6" y2="19.8"/><line class="dim-a" x1="104.2" y1="16.4" x2="104.2" y2="18.6"/><line class="dim-a" x1="104.2" y1="19.8" x2="104.2" y2="22"/><path class="dim-a-f" d="M 104.2 18.6 L 104.03 17.6 L 104.37 17.6 Z"/><path class="dim-a-f" d="M 104.2 19.8 L 104.37 20.8 L 104.03 20.8 Z"/><text class="tx-a" x="105.4" y="19.2" font-size="1.5">1.2</text><path class="brk" d="M 109.8 4.6 L 109.8 16.7 L 108.5 17.9 L 111.1 20.3 L 109.8 21.5 L 109.8 33.6"/><line class="dim" x1="3.4" y1="24" x2="135.0" y2="24"/><line class="dim" x1="3.4" y1="31.9" x2="135.0" y2="31.9"/><path class="body" fill="url(#hx-alk)" d="M 6.72 18.6 H 14.88 Q 15.1 18.6 15.1 18.82 V 19.4 Q 15.1 19.7 15.4 19.7 H 16.3 Q 16.6 19.7 16.6 20 V 23.6 Q 16.6 24 16.2 24 H 5.4 Q 5 24 5 23.6 V 20 Q 5 19.7 5.3 19.7 H 6.2 Q 6.5 19.7 6.5 19.4 V 18.82 Q 6.5 18.6 6.72 18.6 Z"/><text class="tx-c" x="10.8" y="26.9" font-size="1.9" text-anchor="middle">LR44</text><text class="tx-s" x="10.8" y="29.1" font-size="1.5" text-anchor="middle">1.50 V</text><line class="dim" x1="10.8" y1="30.8" x2="10.8" y2="33"/><path class="datum" d="M 10.8 31.9 L 10.18 30.4 L 11.42 30.4 Z"/><text class="tx-s" x="10.8" y="34.3" font-size="1.5" text-anchor="middle">DATUM 1.50</text><path class="body" fill="url(#hx-ago)" d="M 22.32 18.6 H 30.48 Q 30.7 18.6 30.7 18.82 V 19.4 Q 30.7 19.7 31 19.7 H 31.9 Q 32.2 19.7 32.2 20 V 23.6 Q 32.2 24 31.8 24 H 21 Q 20.6 24 20.6 23.6 V 20 Q 20.6 19.7 20.9 19.7 H 21.8 Q 22.1 19.7 22.1 19.4 V 18.82 Q 22.1 18.6 22.32 18.6 Z"/><text class="tx-c" x="26.4" y="26.9" font-size="1.9" text-anchor="middle">SR44</text><text class="tx-s" x="26.4" y="29.1" font-size="1.5" text-anchor="middle">1.55 V</text><line class="dim" x1="26.4" y1="30.8" x2="26.4" y2="33"/><rect class="bar" x="26.4" y="31.625" width="2" height="0.55"/><path class="bar-f" d="M 28.4 31.9 L 27.55 32.26 L 27.55 31.54 Z"/><text class="tx-s" x="27.4" y="34.3" font-size="1.5" text-anchor="middle">+0.05</text><path class="body ghost" fill="url(#hx-ago)" d="M 37.92 18.6 H 46.08 Q 46.3 18.6 46.3 18.82 V 19.4 Q 46.3 19.7 46.6 19.7 H 47.5 Q 47.8 19.7 47.8 20 V 23.6 Q 47.8 24 47.4 24 H 36.6 Q 36.2 24 36.2 23.6 V 20 Q 36.2 19.7 36.5 19.7 H 37.4 Q 37.7 19.7 37.7 19.4 V 18.82 Q 37.7 18.6 37.92 18.6 Z"/><text class="tx-c" x="42" y="26.9" font-size="1.9" text-anchor="middle">303</text><text class="tx-s" x="42" y="29.1" font-size="1.5" text-anchor="middle">1.55 V</text><line class="dim" x1="42" y1="30.8" x2="42" y2="33"/><rect class="bar" x="42" y="31.625" width="2" height="0.55"/><path class="bar-f" d="M 44 31.9 L 43.15 32.26 L 43.15 31.54 Z"/><text class="tx-s" x="43" y="34.3" font-size="1.5" text-anchor="middle">+0.05</text><path class="body ghost" fill="url(#hx-hg)" d="M 53.52 18.6 H 61.68 Q 61.9 18.6 61.9 18.82 V 19.4 Q 61.9 19.7 62.2 19.7 H 63.1 Q 63.4 19.7 63.4 20 V 23.6 Q 63.4 24 63 24 H 52.2 Q 51.8 24 51.8 23.6 V 20 Q 51.8 19.7 52.1 19.7 H 53 Q 53.3 19.7 53.3 19.4 V 18.82 Q 53.3 18.6 53.52 18.6 Z"/><text class="tx-c" x="57.6" y="26.9" font-size="1.9" text-anchor="middle">PX625</text><text class="tx-s" x="57.6" y="29.1" font-size="1.5" text-anchor="middle">1.35 V</text><line class="dim" x1="57.6" y1="30.8" x2="57.6" y2="33"/><rect class="bar-a" x="51.6" y="31.625" width="6" height="0.55"/><path class="bar-a-f" d="M 51.6 31.9 L 52.45 31.54 L 52.45 32.26 Z"/><text class="tx-a" x="54.6" y="34.3" font-size="1.5" text-anchor="middle">-0.15</text><path class="body ghost" fill="url(#hx-alk)" d="M 76.12 19.8 H 84.28 Q 84.5 19.8 84.5 20.02 V 20.45 Q 84.5 20.75 84.8 20.75 H 85.7 Q 86 20.75 86 21.05 V 23.6 Q 86 24 85.6 24 H 74.8 Q 74.4 24 74.4 23.6 V 21.05 Q 74.4 20.75 74.7 20.75 H 75.6 Q 75.9 20.75 75.9 20.45 V 20.02 Q 75.9 19.8 76.12 19.8 Z"/><text class="tx-c" x="80.2" y="26.9" font-size="1.9" text-anchor="middle">LR43</text><text class="tx-s" x="80.2" y="29.1" font-size="1.5" text-anchor="middle">1.50 V</text><line class="dim" x1="80.2" y1="30.8" x2="80.2" y2="33"/><path class="datum-o" d="M 80.2 31.9 L 79.58 30.4 L 80.82 30.4 Z"/><text class="tx-s" x="80.2" y="34.3" font-size="1.5" text-anchor="middle">0.00</text><path class="body ghost" fill="url(#hx-ago)" d="M 91.72 19.8 H 99.88 Q 100.1 19.8 100.1 20.02 V 20.45 Q 100.1 20.75 100.4 20.75 H 101.3 Q 101.6 20.75 101.6 21.05 V 23.6 Q 101.6 24 101.2 24 H 90.4 Q 90 24 90 23.6 V 21.05 Q 90 20.75 90.3 20.75 H 91.2 Q 91.5 20.75 91.5 20.45 V 20.02 Q 91.5 19.8 91.72 19.8 Z"/><text class="tx-c" x="95.8" y="26.9" font-size="1.9" text-anchor="middle">SR43</text><text class="tx-s" x="95.8" y="29.1" font-size="1.5" text-anchor="middle">1.55 V</text><line class="dim" x1="95.8" y1="30.8" x2="95.8" y2="33"/><rect class="bar" x="95.8" y="31.625" width="2" height="0.55"/><path class="bar-f" d="M 97.8 31.9 L 96.95 32.26 L 96.95 31.54 Z"/><text class="tx-s" x="96.8" y="34.3" font-size="1.5" text-anchor="middle">+0.05</text><path class="body" fill="url(#hx-li)" d="M 115.82 20.8 H 130.18 Q 130.4 20.8 130.4 21.02 V 21.3 Q 130.4 21.6 130.7 21.6 H 132.7 Q 133 21.6 133 21.9 V 23.6 Q 133 24 132.6 24 H 113.4 Q 113 24 113 23.6 V 21.9 Q 113 21.6 113.3 21.6 H 115.3 Q 115.6 21.6 115.6 21.3 V 21.02 Q 115.6 20.8 115.82 20.8 Z"/><text class="tx-c" x="123" y="26.9" font-size="1.9" text-anchor="middle">CR2032</text><text class="tx-s" x="123" y="29.1" font-size="1.5" text-anchor="middle">3.00 V</text><line class="dim" x1="123" y1="30.8" x2="123" y2="33"/><rect class="bar-a" x="123" y="31.625" width="6.6" height="0.55"/><path class="brk-a" d="M 129.6 32.8 L 130.1 31 L 130.9 32.8 L 131.4 31"/><rect class="bar-a" x="131.4" y="31.625" width="1.6" height="0.55"/><path class="bar-a-f" d="M 133 31.9 L 132.15 32.26 L 132.15 31.54 Z"/><text class="tx-a" x="128" y="34.3" font-size="1.5" text-anchor="middle">+1.50</text><circle class="bal" cx="57.6" cy="12.6" r="1.7"/><text class="tx-b" x="57.6" y="13.212" font-size="1.7" text-anchor="middle">1</text><line class="lead" x1="57.6" y1="14.4" x2="57.6" y2="18.4"/><circle class="bal" cx="97.6" cy="13.4" r="1.7"/><text class="tx-b" x="97.6" y="14.012" font-size="1.7" text-anchor="middle">2</text><line class="lead" x1="98.9" y1="14.5" x2="103.6" y2="18.3"/><circle class="bal" cx="123" cy="12.6" r="1.7"/><text class="tx-b" x="123" y="13.212" font-size="1.7" text-anchor="middle">3</text><line class="lead" x1="123" y1="14.4" x2="123" y2="20.6"/><line class="dim" x1="5" y1="37" x2="25" y2="37"/><line class="dim" x1="5" y1="37" x2="5" y2="38.4"/><line class="dim" x1="6" y1="37" x2="6" y2="37.8"/><line class="dim" x1="7" y1="37" x2="7" y2="37.8"/><line class="dim" x1="8" y1="37" x2="8" y2="37.8"/><line class="dim" x1="9" y1="37" x2="9" y2="37.8"/><line class="dim" x1="10" y1="37" x2="10" y2="38.4"/><line class="dim" x1="11" y1="37" x2="11" y2="37.8"/><line class="dim" x1="12" y1="37" x2="12" y2="37.8"/><line class="dim" x1="13" y1="37" x2="13" y2="37.8"/><line class="dim" x1="14" y1="37" x2="14" y2="37.8"/><line class="dim" x1="15" y1="37" x2="15" y2="38.4"/><line class="dim" x1="16" y1="37" x2="16" y2="37.8"/><line class="dim" x1="17" y1="37" x2="17" y2="37.8"/><line class="dim" x1="18" y1="37" x2="18" y2="37.8"/><line class="dim" x1="19" y1="37" x2="19" y2="37.8"/><line class="dim" x1="20" y1="37" x2="20" y2="38.4"/><line class="dim" x1="21" y1="37" x2="21" y2="37.8"/><line class="dim" x1="22" y1="37" x2="22" y2="37.8"/><line class="dim" x1="23" y1="37" x2="23" y2="37.8"/><line class="dim" x1="24" y1="37" x2="24" y2="37.8"/><line class="dim" x1="25" y1="37" x2="25" y2="38.4"/><text class="tx-s" x="5" y="40.125" font-size="1.5" text-anchor="middle">0</text><text class="tx-s" x="25" y="40.125" font-size="1.5" text-anchor="middle">20 mm</text><text class="tx-s" x="135" y="39.6" font-size="1.5" text-anchor="end">LOWER BAND: VOLTS FROM DATUM, 40 mm PER VOLT</text></svg></div>
+    <div class="scroller"><table><caption>The &#216;11.6 shell, seven of thirteen cells
+    drawn.</caption><thead><tr><th>Code</th><th>Chemistry</th><th class="num">V</th>
+<th class="num">&#216; mm</th><th class="num">H mm</th><th class="num">mAh</th>
+<th>Status</th><th>Volts from datum, drawn</th><th class="num">&#916;</th></tr></thead><tbody><tr><td class="code">LR44<span class="alt">A76</span></td><td>alkaline MnO2</td><td class="num">1.50</td><td class="num">11.6</td><td class="num">5.4</td><td class="num">150</td><td><span class="st">In production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +0.00 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><path class="rdatum" d="M 42 8 L 38 1 L 46 1 Z"/></svg></td><td class="num">DATUM</td></tr><tr><td class="code"><a href="cell.html">SR44</a><span class="alt">357/303</span></td><td>silver oxide</td><td class="num">1.55</td><td class="num">11.6</td><td class="num">5.4</td><td class="num">150</td><td><span class="st">In production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +0.05 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><rect class="bar" x="42" y="6" width="12" height="4"/><path class="bar-f" d="M 54 8 L 48 11.5 L 48 4.5 Z"/></svg></td><td class="num">+0.05</td></tr><tr><td class="code"><a href="cell.html">303</a><span class="alt">SR44W</span></td><td>silver oxide</td><td class="num">1.55</td><td class="num">11.6</td><td class="num">5.4</td><td class="num"><span class="dash">&#8211;</span></td><td><span class="st st-off">Out of production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +0.05 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><rect class="bar" x="42" y="6" width="12" height="4"/><path class="bar-f" d="M 54 8 L 48 11.5 L 48 4.5 Z"/></svg></td><td class="num">+0.05</td></tr><tr><td class="code"><a href="cell.html">PX625</a><span class="alt">MR9</span></td><td>mercuric oxide</td><td class="num">1.35</td><td class="num">11.6</td><td class="num">5.4</td><td class="num"><span class="dash">&#8211;</span></td><td><span class="st st-off">Out of production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of -0.15 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><rect class="bar-a" x="6" y="6" width="36" height="4"/><path class="bar-a-f" d="M 6 8 L 12 4.5 L 12 11.5 Z"/></svg></td><td class="num warn">-0.15</td></tr><tr><td class="code"><a href="cell.html">LR43</a><span class="alt">186</span></td><td>alkaline MnO2</td><td class="num">1.50</td><td class="num">11.6</td><td class="num">4.2</td><td class="num"><span class="dash">&#8211;</span></td><td><span class="st st-off">Out of production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +0.00 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><path class="rdatum" d="M 42 8 L 38 1 L 46 1 Z"/></svg></td><td class="num">+0.00</td></tr><tr><td class="code"><a href="cell.html">SR43</a><span class="alt">301</span></td><td>silver oxide</td><td class="num">1.55</td><td class="num">11.6</td><td class="num">4.2</td><td class="num"><span class="dash">&#8211;</span></td><td><span class="st st-off">Out of production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +0.05 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><rect class="bar" x="42" y="6" width="12" height="4"/><path class="bar-f" d="M 54 8 L 48 11.5 L 48 4.5 Z"/></svg></td><td class="num">+0.05</td></tr><tr><td class="code"><a href="cell.html">CR2032</a><span class="alt">BR2032</span></td><td>lithium Li/MnO2</td><td class="num">3.00</td><td class="num">20</td><td class="num">3.2</td><td class="num">235</td><td><span class="st">In production</span></td><td><svg class="mb" viewBox="0 0 122 16" width="122" height="16" role="img" aria-label="difference of +1.50 volts, drawn"><line class="rdim" x1="4" y1="8" x2="118" y2="8"/><line class="rdim" x1="42" y1="2" x2="42" y2="14"/><rect class="bar-a" x="42" y="6" width="44" height="4"/><path class="rbrk-a" d="M 86 13 L 90 3 L 96 13 L 100 3"/><rect class="bar-a" x="100" y="6" width="8" height="4"/><path class="bar-a-f" d="M 108 8 L 102 11.5 L 102 4.5 Z"/></svg></td><td class="num warn">+1.50</td></tr></tbody></table></div>
+  </section>
+
+  <section class="stack" id="method">
+    <div class="vh"><span class="vh-id">Method</span><h2 class="vh-t">What this sheet claims</h2></div>
+    <div class="prose">
+      <p>Dimensions are published nominal figures for the shell, not measurements of an individual
+      cell. Voltage is nominal, not voltage under load. &#8220;Same shell&#8221; means the diameter
+      and height match to a tenth of a millimeter as published; it does not promise that the terminal
+      geometry or the contact pressure in your device will accept the cell.</p>
+      <p>Where the file carries no figure, the sheet prints a dash and draws nothing. There are no
+      photographs on this site and no estimated numbers: if a line is on the drawing, a figure in the
+      file put it there.</p>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="vh"><span class="vh-id">Notes</span><h2 class="vh-t">Sheet notes</h2></div>
+    <ol class="notes"><li class="nt"><span class="nt-n">1</span><p>The cap, crimp and gasket in Detail A are drafting conventions, not data. Only the two lettered dimensions come from the file: <b>&#216;11.6</b> and <b>5.4</b>. Everything the file does not know is drawn as a convention or not drawn at all.</p></li><li class="nt"><span class="nt-n">2</span><p><b>0.05 V</b> is inside the spread a single cell moves through as it runs down, which is why SR44 sits inside the hatched band. <b>0.15 V</b> is not: it shifts every reading by the same amount, in the same direction, forever. That is the whole difference between View B&#8217;s two dimension lines.</p></li><li class="nt"><span class="nt-n">3</span><p><b>PX625</b> has no exact replacement. SR44 fills the identical well and reads 0.20 V high against a 1.35 V scale; the crossed arrow in View C is the sheet refusing to call that a substitution.</p></li><li class="nt"><span class="nt-n">4</span><p><b>Ad nodes.</b> The unit in the side column is written into the page only when a creative is served. No placeholder is emitted, so no empty box ships, and no spacing rule on this sheet counts its children.</p></li></ol>
+  </section>
+
+</div>
+
+<div class="rail-col">
+  <aside class="slot" aria-label="Advertisement">
+<div class="slot-box" style="--sw:300px;--sa:300/600"><span class="tag">AD 300 &#215; 600</span></div>
+<p class="cap">Side-column unit. Rendered only when a creative is served.</p></aside>
+  <div class="card"><span class="lbl">Neighbors in this shell</span>
+    <p>Six other cells fill or nearly fill the same envelope. Two of them stand 1.2 mm short and will
+    not close a lid contact built for 5.4 mm.</p>
+    <div class="chips"><a class="chip" href="cell.html">SR44</a><a class="chip" href="cell.html">303</a><a class="chip" href="cell.html">PX625</a><a class="chip" href="cell.html">LR43</a><a class="chip" href="cell.html">SR43</a><a class="chip" href="cell.html">CR2032</a></div>
+  </div>
+</div>
+</div>
+</div>
+
+<footer class="foot"><div class="tb"><div class="tb-c"><span class="tb-k">PART</span><span class="tb-v">LR44</span></div><div class="tb-c"><span class="tb-k">DRAWING TITLE</span><span class="tb-v">ALKALINE MnO2 &#183; 1.50 V</span></div><div class="tb-c"><span class="tb-k">SCALE</span><span class="tb-v">AS NOTED PER VIEW</span></div><div class="tb-c"><span class="tb-k">UNITS</span><span class="tb-v">mm / V</span></div><div class="tb-c"><span class="tb-k">SHEET</span><span class="tb-v">1 OF 1</span></div><div class="tb-c"><span class="tb-k">REV</span><span class="tb-v">2026-09</span></div><div class="tb-c"><span class="tb-k">ON FILE</span><span class="tb-v">416 CELLS</span></div><div class="tb-c"><span class="tb-k">OUT OF PRODUCTION</span><span class="tb-v">277 CELLS</span></div></div>
+<p class="note">Dimensions and voltages are published nominal figures, not measurements of the cell
+in your hand. Where the data file carries no figure this sheet prints a dash and draws nothing.</p>
+</footer>
+</div></div></body></html>

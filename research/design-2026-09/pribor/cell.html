@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LR44 &mdash; 11.6 &times; 5.4 mm, 1.50 V alkaline &#183; BatteryCross</title>
+<style>
+/* ==========================================================================
+   GAUGE  &mdash;  BatteryCross design direction
+   The page is a panel meter. Dark is the instrument's resting state and is
+   declared in :root; prefers-color-scheme:light is the only override.
+   Every color is a variable in :root. No color is born inside a media block.
+   ========================================================================== */
+
+:root{
+  color-scheme: dark light;
+
+  --f-mono: ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --f-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  --bg:#0b0e11;
+  --bg-2:#0e1317;
+  --panel:#12181d;
+  --panel-2:#171e24;
+
+  --ink:#e9eef2;
+  --ink-2:#a7b6c2;
+  --ink-3:#7d8f9c;
+
+  --line:#5d6b76;
+  --line-soft:#39434b;
+
+  --signal:#5fb2ff;
+  --caution:#f5a623;
+  --danger:#ff6b52;
+  --danger-soft:#7a3529;
+  --window:#2d5474;
+
+  --metal:#5e6d79;
+  --metal-cap:#93a3ae;
+
+  --slot:#161c22;
+  --slot-line:#39434b;
+
+  --sel:#1d3b57;
+
+  --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:72px;
+  --measure:63ch;
+  --chamfer:12px;
+}
+
+/* Dark is the default state, so it needs no override. This block re-asserts
+   it explicitly so the preference still wins if a host injects a light
+   :root of its own. Every value here also exists in :root above. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b0e11; --bg-2:#0e1317; --panel:#12181d; --panel-2:#171e24;
+    --ink:#e9eef2; --ink-2:#a7b6c2; --ink-3:#7d8f9c;
+    --line:#5d6b76; --line-soft:#39434b;
+    --signal:#5fb2ff;
+    --caution:#f5a623;
+    --danger:#ff6b52; --danger-soft:#7a3529;
+    --window:#2d5474;
+    --metal:#5e6d79; --metal-cap:#93a3ae;
+    --slot:#161c22; --slot-line:#39434b; --sel:#1d3b57;
+  }
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#e7ebee; --bg-2:#dfe4e8; --panel:#f7f9fa; --panel-2:#eef2f4;
+    --ink:#0e1418; --ink-2:#3f4c56; --ink-3:#4e5c66;
+    --line:#6f7d88; --line-soft:#c3ccd2;
+    --signal:#0b62c4;
+    --caution:#8f5300;
+    --danger:#c0281a; --danger-soft:#e79f95;
+    --window:#8fbde6;
+    --metal:#7b8996; --metal-cap:#5b6a75;
+    --slot:#e3e8eb; --slot-line:#c3ccd2; --sel:#cbe0f5;
+  }
+}
+
+/* ---------- base ---------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:400 16px/1.6 var(--f-sans);
+  font-synthesis-weight:none;
+}
+::selection{background:var(--sel);color:var(--ink)}
+svg{max-width:100%}
+a{color:var(--signal);text-decoration:none;border-bottom:1px solid currentColor}
+a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+h1,h2,h3,h4{font-family:var(--f-mono);font-weight:600;margin:0;letter-spacing:-.012em;line-height:1.18}
+h1{font-size:clamp(30px,6vw,46px);letter-spacing:.01em}
+h2{font-size:clamp(20px,2.6vw,27px)}
+h3{font-size:19px;letter-spacing:0}
+p{margin:0}
+
+.prose{max-width:var(--measure);color:var(--ink-2);font-size:16px;line-height:1.62}
+.prose > * + *{margin-top:var(--s4)}
+.prose strong{color:var(--ink);font-weight:600}
+@media (min-width:900px){ .prose{font-size:17px} }
+
+.code{font-family:var(--f-mono);font-weight:600;letter-spacing:.01em;overflow-wrap:anywhere}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums lining-nums}
+.lab{
+  font-family:var(--f-mono);font-size:11px;line-height:1.3;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+}
+
+/* ---------- ruler ---------------------------------------------------- */
+.ruler{
+  height:11px;
+  background:
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 40px) left top/100% 11px no-repeat,
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left top/100% 5px no-repeat,
+    linear-gradient(var(--line-soft),var(--line-soft)) left top/100% 1px no-repeat;
+}
+
+/* ---------- layout --------------------------------------------------- */
+.wrap{max-width:1200px;margin:0 auto;padding:0 var(--s4)}
+@media (min-width:760px){ .wrap{padding:0 var(--s5)} }
+
+.page{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s7);padding:var(--s5) 0 var(--s8)}
+.page > *{min-width:0}
+@media (min-width:1080px){
+  .page{grid-template-columns:minmax(0,1fr) 300px;gap:var(--s7);align-items:start}
+}
+
+.sec{padding-top:var(--s6)}
+.sec-head{display:flex;align-items:baseline;gap:var(--s3);margin-bottom:var(--s4);flex-wrap:wrap}
+.sec-no{
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;color:var(--signal);
+  border:1px solid var(--line);padding:2px 6px;
+}
+.sec-note{margin-top:var(--s2)}
+
+/* ---------- masthead ------------------------------------------------- */
+.masthead{background:var(--bg-2);border-bottom:1px solid var(--line-soft)}
+.mast-in{
+  display:flex;flex-wrap:wrap;gap:var(--s4) var(--s6);
+  align-items:flex-end;justify-content:space-between;padding:var(--s4) 0 var(--s3);
+}
+.brand{display:block;border:0;color:inherit}
+.brand:hover{color:inherit}
+.brand-name{font-family:var(--f-mono);font-size:clamp(19px,3.2vw,24px);font-weight:700;letter-spacing:.02em}
+.brand-name .bx{color:var(--signal)}
+.brand-plate{margin-top:3px;display:flex;gap:var(--s3);flex-wrap:wrap}
+.nav{display:flex;gap:var(--s4);flex-wrap:wrap}
+.nav a{
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-2);border-bottom:1px solid transparent;padding-bottom:2px;
+}
+.nav a:hover{color:var(--ink);border-bottom-color:var(--signal)}
+.skip{
+  display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);border:0;padding:6px 0;
+}
+.skip:hover{color:var(--ink)}
+
+/* ---------- entry ---------------------------------------------------- */
+.entry{max-width:44rem}
+.entry-row{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s2)}
+.entry input{
+  flex:1 1 10rem;min-width:0;
+  font:600 15px/1.2 var(--f-mono);letter-spacing:.06em;
+  color:var(--ink);background:var(--panel-2);
+  border:1px solid var(--line);border-radius:0;padding:10px var(--s3);
+}
+.entry input::placeholder{color:var(--ink-3);font-weight:400;letter-spacing:.04em}
+.entry button{
+  flex:0 0 auto;
+  font:600 12px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--bg);background:var(--signal);
+  border:1px solid var(--signal);border-radius:0;padding:10px var(--s4);cursor:pointer;
+}
+.entry button:hover{background:var(--ink);border-color:var(--ink)}
+.entry--compact{max-width:22rem;flex:1 1 16rem}
+
+/* ---------- breadcrumb ------------------------------------------------ */
+.crumb{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;padding:var(--s4) 0 0}
+.crumb a,.crumb span{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.crumb span{color:var(--ink-3)}
+.crumb .sep{color:var(--ink-3)}   /* it is a glyph, so it answers to the text threshold, not the line one */
+
+/* ---------- title block (an engineering drawing title block) ---------- */
+.titleblock{margin-top:var(--s4);border:1px solid var(--line);background:var(--line-soft)}
+.tb-head{background:var(--panel);padding:var(--s5) var(--s4)}
+.tb-status{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s3)}
+.aliases{margin-top:var(--s2);font-family:var(--f-mono);font-size:13px;color:var(--ink-3);letter-spacing:.02em;line-height:1.5}
+.tb-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:1px;margin-top:1px}
+.tb-f{background:var(--panel);padding:var(--s3) var(--s4);display:flex;flex-direction:column;gap:5px;justify-content:center}
+.tb-f .v{font-family:var(--f-mono);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tb-f .v small{font-weight:400;font-size:12px;color:var(--ink-3)}
+
+/* ---------- drawings --------------------------------------------------- */
+/* Rule of this direction: an SVG that carries text is fixed in pixels and may
+   only scale UP; an SVG that must be fluid carries no text at all. */
+.dwg{display:block;width:100%;height:auto;overflow:visible}
+.dwg *{vector-effect:non-scaling-stroke}
+.dwg .floor{stroke:var(--line);stroke-width:1.5px}
+.dwg .can{fill:var(--metal);stroke:var(--ink);stroke-width:1.5px}
+.dwg .cap{fill:var(--metal-cap);stroke:none}
+.dwg .env{fill:none;stroke:var(--signal);stroke-width:1.25px;stroke-dasharray:5 4}
+.dwg.dead .can{fill:none;stroke:var(--ink-3);stroke-width:1.25px;stroke-dasharray:4 3}
+.dwg.dead .cap{fill:none;stroke:var(--ink-3);stroke-width:1px;stroke-dasharray:3 3}
+.dwg .slash{stroke:var(--ink-3);stroke-width:1.25px}
+.dwg .void{fill:var(--danger-soft);stroke:var(--danger);stroke-width:1.25px}
+.dwg .rl{stroke:var(--line);stroke-width:1.25px}
+.dwg .rt{stroke:var(--line);stroke-width:1px}
+
+.rule-nums{display:flex;justify-content:space-between;margin-left:3.846%;width:76.923%;margin-top:2px}
+.rule-nums span{
+  flex:0 0 0;display:flex;justify-content:center;white-space:nowrap;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink-3);
+}
+
+/* fixed-size drawings that carry text */
+.detail{display:block;width:256px;max-width:100%;height:auto;overflow:visible}
+@media (min-width:760px){ .detail{width:340px} }
+.detail *{vector-effect:non-scaling-stroke}
+.detail .can{fill:var(--metal);stroke:var(--ink);stroke-width:1.5}
+.detail .cap{fill:var(--metal-cap);stroke:none}
+.detail .seam{stroke:var(--ink);stroke-width:1}
+.detail .ext,.detail .dim{stroke:var(--ink-2);stroke-width:1}
+.detail .mmtick{stroke:var(--line);stroke-width:1}
+.detail .head{fill:var(--ink-2)}
+.detail text{font-family:var(--f-mono);font-size:11px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.detail .tiny{font-size:9px;fill:var(--ink-3);letter-spacing:.08em}
+.detail .floor{stroke:var(--line);stroke-width:1.5}
+
+.fitd{display:block;width:256px;max-width:100%;height:auto;overflow:visible}
+@media (min-width:760px){ .fitd{width:360px} }
+.fitd *{vector-effect:non-scaling-stroke}
+.fitd .can{fill:var(--metal);stroke:var(--ink);stroke-width:1.5}
+.fitd .cap{fill:var(--metal-cap);stroke:none}
+.fitd .floor{stroke:var(--ink-2);stroke-width:1.5}
+.fitd .hatch{stroke:var(--line);stroke-width:1}
+.fitd .lid{stroke:var(--signal);stroke-width:1.25;stroke-dasharray:6 4}
+.fitd .void{fill:var(--danger-soft);stroke:var(--danger);stroke-width:1.25}
+.fitd text{font-family:var(--f-mono);font-size:11px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.fitd .tiny{font-size:10px;fill:var(--ink-3);letter-spacing:.06em}
+.fitd .bad{fill:var(--danger);font-size:10px;letter-spacing:.06em}
+
+.railv{display:block;width:256px;max-width:100%;height:auto}
+@media (min-width:900px){ .railv{width:292px} }
+.railv .win{fill:var(--window);stroke:var(--signal);stroke-width:1;stroke-dasharray:4 4}
+.railv .ax{stroke:var(--ink-2);stroke-width:1.5}
+.railv .tk line{stroke:var(--line);stroke-width:1}
+.railv .tkM line{stroke:var(--ink-2);stroke-width:1.5}
+.railv text{font-family:var(--f-mono);fill:var(--ink-3);font-size:11px;font-variant-numeric:tabular-nums}
+.railv .val{font-size:13px;font-weight:600}
+.railv .who{font-size:10px;fill:var(--ink-3)}
+.railv .who2{font-size:9px;fill:var(--ink-3)}
+.railv .unit{font-size:10px;letter-spacing:.1em}
+.railv .lead{fill:none;stroke:var(--line);stroke-width:1}
+.railv .wedge{stroke:none}
+.railv .strike{stroke:var(--ink-3);stroke-width:1}
+.railv .n-signal .wedge{fill:var(--signal)}
+.railv .n-signal .val{fill:var(--signal)}
+.railv .n-self .val{fill:var(--ink)}
+.railv .n-self .wedge{fill:var(--ink)}
+.railv .n-self .this{fill:var(--signal);font-size:9px;letter-spacing:.14em}
+.railv .n-caution .wedge{fill:none;stroke:var(--caution);stroke-width:1.5}
+.railv .n-caution .val{fill:var(--caution)}
+.railv .n-caution .lead{stroke:var(--caution);stroke-dasharray:4 3}
+.railv .n-danger .wedge{fill:var(--danger)}
+.railv .n-danger .val{fill:var(--danger)}
+
+.chip{display:block;width:176px;max-width:100%;height:auto}
+.chip .base{stroke:var(--ink-2);stroke-width:1}
+.chip .t{stroke:var(--line);stroke-width:1}
+.chip .tM{stroke:var(--ink-2);stroke-width:1}
+.chip .stem{stroke-width:1.25}
+.chip text{font-family:var(--f-mono);font-size:10px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.chip.v-in .wedge{fill:var(--signal)}   .chip.v-in .stem{stroke:var(--signal)}   .chip.v-in text{fill:var(--signal)}
+.chip.v-low .wedge{fill:var(--caution)} .chip.v-low .stem{stroke:var(--caution)} .chip.v-low text{fill:var(--caution)}
+.chip.v-high .wedge{fill:var(--danger)} .chip.v-high .stem{stroke:var(--danger)} .chip.v-high text{fill:var(--danger)}
+
+/* ---------- specimen rows ---------------------------------------------- */
+.tray{border:1px solid var(--line-soft);background:var(--panel);padding:var(--s4)}
+.tray-rows{display:grid;gap:var(--s4)}
+.spec{display:grid;gap:var(--s2);grid-template-columns:minmax(0,1fr);align-items:center;
+      padding-bottom:var(--s4);border-bottom:1px solid var(--line-soft)}
+@media (min-width:680px){
+  .spec{grid-template-columns:216px minmax(0,1fr) 176px;gap:var(--s4)}
+}
+.spec-id{display:flex;flex-direction:column;gap:3px}
+.spec-id .code{font-size:17px}
+.spec-id .alias{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.02em}
+.spec-id .dims{font-family:var(--f-mono);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.spec-v{display:flex;flex-direction:column;gap:5px}
+.state{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.s-live{color:var(--ink-2)}
+.s-live::before{content:"\25A0";margin-right:6px;color:var(--metal-cap)}
+.s-out{color:var(--ink-3)}
+.s-out::before{content:"\25A1";margin-right:6px}
+.s-self{color:var(--signal)}
+.s-self::before{content:"\25A0";margin-right:6px;color:var(--signal)}
+.strike{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-3)}
+.route{font-family:var(--f-mono);font-size:12px;color:var(--signal)}
+.tray-foot{margin-top:var(--s3);font-size:13px;color:var(--ink-3);line-height:1.5}
+.is-self{background:var(--panel-2);margin:0 calc(var(--s3) * -1);padding-left:var(--s3);padding-right:var(--s3);padding-top:var(--s3)}
+
+/* ---------- cards ------------------------------------------------------ */
+.trip{display:grid;gap:var(--s4);grid-template-columns:minmax(0,1fr)}
+@media (min-width:720px){ .trip{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.card{border:1px solid var(--line-soft);background:var(--panel);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.card-top{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2)}
+.verdict{font-size:14px;line-height:1.5;color:var(--ink-2)}
+.verdict b{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+.v-in b{color:var(--signal)} .v-low b{color:var(--caution)} .v-high b{color:var(--danger)}
+
+.split{display:grid;gap:var(--s5);grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){ .split{grid-template-columns:auto minmax(0,1fr);gap:var(--s7);align-items:start} }
+.instrument{
+  background:var(--panel);border:1px solid var(--line-soft);padding:var(--s4);margin:0;
+  width:max-content;max-width:100%;   /* the panel is an instrument, not a banner: it hugs its face */
+  clip-path:polygon(var(--chamfer) 0,100% 0,100% calc(100% - var(--chamfer)),calc(100% - var(--chamfer)) 100%,0 100%,0 var(--chamfer));
+}
+.instrument-head{display:flex;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s3);flex-wrap:wrap}
+.instrument figcaption{margin-top:var(--s3);font-size:13px;line-height:1.5;color:var(--ink-3);max-width:38ch}
+
+/* ---------- table ------------------------------------------------------ */
+.tscroll{overflow-x:auto;border:1px solid var(--line-soft);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:760px}
+caption{text-align:left;padding:var(--s3) var(--s4);font-family:var(--f-mono);font-size:11px;
+        letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line-soft)}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+   color:var(--ink-3);text-align:left;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:var(--s3) var(--s4);border-bottom:1px solid var(--line-soft);vertical-align:middle;font-size:14px;color:var(--ink-2)}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+tbody tr:hover td{background:var(--panel-2)}
+tr.self td{background:var(--panel-2)}
+
+/* ---------- routes ------------------------------------------------------ */
+.routes{display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.route-row{background:var(--panel);padding:var(--s4);display:grid;gap:var(--s3);grid-template-columns:minmax(0,1fr)}
+@media (min-width:700px){ .route-row{grid-template-columns:150px 56px 150px minmax(0,1fr);align-items:center;gap:var(--s4)} }
+.arrow{display:block;width:56px;height:16px}
+.arrow *{vector-effect:non-scaling-stroke}
+.arrow line{stroke:var(--line);stroke-width:1.25px}
+.arrow polygon{fill:var(--line)}
+.route-note{font-size:14px;line-height:1.5;color:var(--ink-2)}
+.route-note em{font-style:normal;color:var(--caution)}
+
+/* ---------- neighbors --------------------------------------------------- */
+.entries{display:grid;gap:var(--s4);grid-template-columns:minmax(0,1fr)}
+@media (min-width:620px){ .entries{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.entrycard{border:1px solid var(--line-soft);background:var(--panel);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s2)}
+.entrycard h3{font-family:var(--f-mono)}
+.entrycard p{font-size:14px;color:var(--ink-3);line-height:1.5}
+.entrycard .links{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);margin-top:2px}
+.entrycard .links a{font-family:var(--f-mono);font-size:13px}
+
+/* ---------- slots -------------------------------------------------------- */
+.slot-wrap{overflow-x:auto;padding-bottom:2px}
+.slot{
+  --sw:336px; --sh:280px;
+  width:var(--sw);height:var(--sh);flex:none;
+  background:
+    repeating-linear-gradient(135deg,var(--slot-line) 0 1px,transparent 1px 9px),
+    linear-gradient(var(--slot),var(--slot));
+  border:1px solid var(--slot-line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+}
+.slot .slot-tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.slot::after{content:"336 \00D7  280";font-family:var(--f-mono);font-size:15px;font-weight:600;color:var(--ink-2);letter-spacing:.04em}
+@media (min-width:768px){
+  .slot--leader{--sw:728px;--sh:90px}
+  .slot--leader::after{content:"728 \00D7  90"}
+}
+@media (min-width:1080px){
+  .slot--rail{--sw:300px;--sh:600px}
+  .slot--rail::after{content:"300 \00D7  600"}
+}
+.slot-note{margin-top:var(--s2);font-size:12px;line-height:1.5;color:var(--ink-3);max-width:60ch}
+
+/* ---------- rail ---------------------------------------------------------- */
+.rail{display:flex;flex-direction:column;gap:var(--s5)}
+.legend{border:1px solid var(--line-soft);background:var(--panel);padding:var(--s4)}
+.legend h3{font-family:var(--f-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s3)}
+.legend dl{margin:0;display:grid;gap:var(--s3)}
+.legend dt{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--ink)}
+.legend dd{margin:2px 0 0;font-size:13px;line-height:1.45;color:var(--ink-3)}
+.keydraw{display:block;width:100%;height:auto;margin-bottom:var(--s2)}
+.keydraw *{vector-effect:non-scaling-stroke}
+
+/* ---------- footer --------------------------------------------------------- */
+.foot{border-top:1px solid var(--line-soft);background:var(--bg-2);padding:var(--s6) 0 var(--s8)}
+.foot-grid{display:grid;gap:var(--s5);grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){ .foot-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s6)} }
+.foot h4{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s2)}
+.foot p,.foot li{font-size:13px;line-height:1.55;color:var(--ink-3)}
+.foot ul{margin:0;padding-left:1.1em}
+.foot li + li{margin-top:4px}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main" style="margin-left:16px">Skip to the readings</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-in">
+      <a class="brand" href="home.html">
+        <span class="brand-name">BATTERY<span class="bx">CROSS</span></span>
+        <span class="brand-plate">
+          <span class="lab">cross-reference</span>
+          <span class="lab">416 entries</span>
+        </span>
+      </a>
+      <form class="entry entry--compact" action="#" method="get" role="search">
+        <label class="lab" for="q">Code stamped on the cell</label>
+        <div class="entry-row">
+          <input id="q" name="q" type="search" autocomplete="off" spellcheck="false" placeholder="LR44 / 357 / PX625">
+          <button type="submit">Find</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="wrap"><div class="ruler" aria-hidden="true"></div></div>
+</header>
+
+<div class="wrap page">
+<main id="main">
+
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="home.html">Home</a><span class="sep">/</span>
+    <a href="#">Shell 11.6 &times; 5.4</a><span class="sep">/</span>
+    <span>LR44</span>
+  </nav>
+
+  <!-- ============ TITLE BLOCK ============ -->
+  <section class="titleblock">
+    <div class="tb-head">
+      <span class="lab">Cell</span>
+      <h1>LR44</h1>
+      <p class="aliases">A76 &#183; AG13 &#183; V13GA &#183; 1166A &#183; LR1154 &#183; G13</p>
+      <div class="tb-status">
+        <span class="state s-self">in production</span>
+        <span class="lab">last checked 2026-08-30</span>
+      </div>
+    </div>
+    <div class="tb-fields">
+      <div class="tb-f">
+        <span class="lab">Chemistry</span>
+        <span class="v">Alkaline <small>MnO<sub>2</sub></small></span>
+      </div>
+      <div class="tb-f">
+        <span class="lab">Nominal</span>
+        <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.50 volts, inside the 1.45 to 1.60 volt interchange window of this shell.">
+          <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+          <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+          <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+          <polygon class="wedge" points="33.4,19 28.9,11 37.9,11"/>
+          <line class="stem" x1="33.4" y1="11" x2="33.4" y2="6"/>
+          <text x="43" y="10">1.50 V</text>
+        </svg>
+      </div>
+      <div class="tb-f">
+        <span class="lab">Envelope</span>
+        <span class="v">&Oslash; 11.6 &times; 5.4 <small>mm</small></span>
+      </div>
+      <div class="tb-f">
+        <span class="lab">Capacity</span>
+        <span class="v">150 <small>mAh</small></span>
+      </div>
+      <div class="tb-f">
+        <span class="lab">Shell family</span>
+        <span class="v">13 <small>entries</small></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 SPECIMEN ============ -->
+  <div class="ruler" aria-hidden="true" style="margin-top:48px"></div>
+  <section class="sec" id="specimen">
+    <div class="sec-head">
+      <span class="sec-no">01</span>
+      <h2>The specimen</h2>
+    </div>
+
+    <div class="split">
+      <figure class="instrument">
+        <div class="instrument-head">
+          <span class="lab">LR44 &#183; section</span>
+          <span class="lab">to scale</span>
+        </div>
+        <svg class="detail" viewBox="0 0 256 176" role="img"
+             aria-label="Cross-section of LR44 drawn to scale: 11.6 millimeters in diameter, 5.4 millimeters tall. The dimension line below is ticked every millimeter.">
+          <line class="floor" x1="8" y1="118" x2="248" y2="118"/>
+          <rect class="can" x="18" y="31.6" width="185.6" height="86.4" rx="7"/>
+          <rect class="cap" x="29.2" y="31.6" width="163.2" height="25.6" rx="3"/>
+          <line class="seam" x1="29.2" y1="57.2" x2="192.4" y2="57.2"/>
+
+          <!-- vertical dimension: height -->
+          <line class="ext" x1="203.6" y1="31.6" x2="230" y2="31.6"/>
+          <line class="ext" x1="203.6" y1="118" x2="230" y2="118"/>
+          <line class="dim" x1="222" y1="31.6" x2="222" y2="118"/>
+          <polygon class="head" points="222,31.6 219,38.6 225,38.6"/>
+          <polygon class="head" points="222,118 219,111 225,111"/>
+          <text transform="translate(242,74.8) rotate(-90)" text-anchor="middle">5.4 mm</text>
+
+          <!-- horizontal dimension: diameter, ticked every millimeter -->
+          <line class="ext" x1="18" y1="118" x2="18" y2="152"/>
+          <line class="ext" x1="203.6" y1="118" x2="203.6" y2="152"/>
+          <line class="dim" x1="18" y1="144" x2="203.6" y2="144"/>
+          <polygon class="head" points="18,144 25,141 25,147"/>
+          <polygon class="head" points="203.6,144 196.6,141 196.6,147"/>
+          <g class="mmtick">
+            <line x1="34" y1="140" x2="34" y2="148"/><line x1="50" y1="140" x2="50" y2="148"/>
+            <line x1="66" y1="140" x2="66" y2="148"/><line x1="82" y1="140" x2="82" y2="148"/>
+            <line x1="98" y1="140" x2="98" y2="148"/><line x1="114" y1="140" x2="114" y2="148"/>
+            <line x1="130" y1="140" x2="130" y2="148"/><line x1="146" y1="140" x2="146" y2="148"/>
+            <line x1="162" y1="140" x2="162" y2="148"/><line x1="178" y1="140" x2="178" y2="148"/>
+            <line x1="194" y1="140" x2="194" y2="148"/>
+          </g>
+          <text x="110.8" y="137" text-anchor="middle">&Oslash; 11.6 mm</text>
+          <text class="tiny" x="18" y="167">TICKS ON THE DIMENSION LINE ARE 1 MM</text>
+        </svg>
+        <figcaption>
+          Positive can drawn solid, negative cap shaded. Every silhouette on this
+          site is generated from the same two numbers in the record &mdash; nothing
+          is drawn by hand, so nothing can flatter a cell that does not fit.
+        </figcaption>
+      </figure>
+
+      <div class="prose">
+        <p>
+          <strong>LR44 is the reference cell of the 11.6 &times; 5.4 mm shell.</strong>
+          It is alkaline, it is still made everywhere, and it is the cell most
+          often stamped on the inside of a battery door that was designed forty
+          years ago for something else.
+        </p>
+        <p>
+          Twelve other catalog entries share its envelope exactly, and two more
+          share its diameter while falling 1.2 mm short of its height. The
+          envelope is where a cross-reference starts. It is not where it ends:
+          three chemistries with three different nominal voltages have been sold
+          in this exact can, and one of them will make a calibrated instrument
+          lie to you.
+        </p>
+        <p>
+          Below: the family at one scale, the 1.2 mm that separates a fit from a
+          rattle, and the voltage picture.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AD SLOT ============ -->
+  <section class="sec">
+    <span class="lab" style="display:block;margin-bottom:8px">Advertisement</span>
+    <div class="slot-wrap">
+      <div class="slot slot--leader"><span class="slot-tag">slot A &#183; in flow</span></div>
+    </div>
+    <p class="slot-note">
+      Filled placeholder at its true size. No creative, no element: the builder
+      leaves this block out of the HTML entirely rather than hiding it, because a
+      hidden node is still a child and still shifts the spacing around it.
+    </p>
+  </section>
+
+  <!-- ============ 02 FAMILY ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="family">
+    <div class="sec-head">
+      <span class="sec-no">02</span>
+      <h2>Shell family &#183; 11.6 &times; 5.4&nbsp;mm</h2>
+    </div>
+    <p class="prose sec-note">
+      One scale, one baseline, one dashed envelope repeated in every row. Fill the
+      box and you are a candidate; fall short of it and you may never reach the
+      contact; burst through it and you were never in this family.
+    </p>
+
+    <div class="tray" style="margin-top:24px">
+      <div class="tray-rows">
+
+        <div class="spec is-self">
+          <div class="spec-id">
+            <span class="code">LR44</span>
+            <span class="alias">A76 &#183; AG13 &#183; 1166A</span>
+            <span class="dims">&Oslash; 11.6 &times; 5.4 mm &#183; alkaline</span>
+          </div>
+          <div>
+            <svg class="dwg" viewBox="0 0 26 8" role="img" aria-label="LR44, 11.6 by 5.4 millimeters, filling the envelope exactly.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="can" x="1" y="1.6" width="11.6" height="5.4" rx="0.45"/>
+              <rect class="cap" x="1.7" y="1.6" width="10.2" height="1.6" rx="0.2"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.50 volts, inside the window.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="33.4,19 28.9,11 37.9,11"/>
+              <line class="stem" x1="33.4" y1="11" x2="33.4" y2="6"/>
+              <text x="43" y="10">1.50 V</text>
+            </svg>
+            <span class="state s-self">this cell</span>
+          </div>
+        </div>
+
+        <div class="spec">
+          <div class="spec-id">
+            <span class="code">SR44</span>
+            <span class="alias">357 &#183; 303 &#183; SR1154</span>
+            <span class="dims">&Oslash; 11.6 &times; 5.4 mm &#183; silver oxide</span>
+          </div>
+          <div>
+            <svg class="dwg" viewBox="0 0 26 8" role="img" aria-label="SR44, 11.6 by 5.4 millimeters, identical envelope.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="can" x="1" y="1.6" width="11.6" height="5.4" rx="0.45"/>
+              <rect class="cap" x="1.7" y="1.6" width="10.2" height="1.6" rx="0.2"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+              <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+              <text x="47" y="10">1.55 V</text>
+            </svg>
+            <span class="state s-live">in production</span>
+          </div>
+        </div>
+
+        <div class="spec">
+          <div class="spec-id">
+            <span class="code strike">303</span>
+            <span class="alias">silver oxide designation</span>
+            <span class="dims">&Oslash; 11.6 &times; 5.4 mm</span>
+            <span class="route">&rarr; supplied today as SR44 / 357</span>
+          </div>
+          <div>
+            <svg class="dwg dead" viewBox="0 0 26 8" role="img" aria-label="303, 11.6 by 5.4 millimeters, hollow because the designation is out of production.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="can" x="1" y="1.6" width="11.6" height="5.4" rx="0.45"/>
+              <rect class="cap" x="1.7" y="1.6" width="10.2" height="1.6" rx="0.2"/>
+              <line class="slash" x1="1" y1="7" x2="12.6" y2="1.6"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+              <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+              <text x="47" y="10">1.55 V</text>
+            </svg>
+            <span class="state s-out">out of production</span>
+          </div>
+        </div>
+
+        <div class="spec">
+          <div class="spec-id">
+            <span class="code strike">LR43</span>
+            <span class="alias">186 &#183; AG12</span>
+            <span class="dims">&Oslash; 11.6 &times; <b class="num" style="color:var(--danger)">4.2</b> mm &#183; alkaline</span>
+            <span class="route">&rarr; 1.2 mm short &#183; not a substitute</span>
+          </div>
+          <div>
+            <svg class="dwg dead" viewBox="0 0 26 8" role="img" aria-label="LR43, 11.6 by 4.2 millimeters: same diameter, 1.2 millimeters short of the envelope.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="void" x="1" y="1.6" width="11.6" height="1.2"/>
+              <rect class="can" x="1" y="2.8" width="11.6" height="4.2" rx="0.45"/>
+              <rect class="cap" x="1.7" y="2.8" width="10.2" height="1.3" rx="0.2"/>
+              <line class="slash" x1="1" y1="7" x2="12.6" y2="2.8"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.50 volts, inside the window, but the cell is too short.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="33.4,19 28.9,11 37.9,11"/>
+              <line class="stem" x1="33.4" y1="11" x2="33.4" y2="6"/>
+              <text x="43" y="10">1.50 V</text>
+            </svg>
+            <span class="state s-out">out of production</span>
+          </div>
+        </div>
+
+        <div class="spec">
+          <div class="spec-id">
+            <span class="code strike">SR43</span>
+            <span class="alias">301 &#183; AG12 silver</span>
+            <span class="dims">&Oslash; 11.6 &times; <b class="num" style="color:var(--danger)">4.2</b> mm &#183; silver oxide</span>
+            <span class="route">&rarr; 1.2 mm short &#183; not a substitute</span>
+          </div>
+          <div>
+            <svg class="dwg dead" viewBox="0 0 26 8" role="img" aria-label="SR43, 11.6 by 4.2 millimeters: same diameter, 1.2 millimeters short of the envelope.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="void" x="1" y="1.6" width="11.6" height="1.2"/>
+              <rect class="can" x="1" y="2.8" width="11.6" height="4.2" rx="0.45"/>
+              <rect class="cap" x="1.7" y="2.8" width="10.2" height="1.3" rx="0.2"/>
+              <line class="slash" x1="1" y1="7" x2="12.6" y2="2.8"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window, but the cell is too short.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+              <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+              <text x="47" y="10">1.55 V</text>
+            </svg>
+            <span class="state s-out">out of production</span>
+          </div>
+        </div>
+
+        <div class="spec">
+          <div class="spec-id">
+            <span class="code">CR2032</span>
+            <span class="alias">lithium coin</span>
+            <span class="dims">&Oslash; <b class="num" style="color:var(--danger)">20.0</b> &times; 3.2 mm &#183; lithium</span>
+            <span class="route">&rarr; different family entirely</span>
+          </div>
+          <div>
+            <svg class="dwg" viewBox="0 0 26 8" role="img" aria-label="CR2032, 20 by 3.2 millimeters: far wider than the envelope and much lower.">
+              <line class="floor" x1="0" y1="7" x2="26" y2="7"/>
+              <rect class="can" x="1" y="3.8" width="20" height="3.2" rx="0.4"/>
+              <rect class="cap" x="1.7" y="3.8" width="18.6" height="1" rx="0.2"/>
+              <rect class="env" x="1" y="1.6" width="11.6" height="5.4"/>
+            </svg>
+          </div>
+          <div class="spec-v">
+            <svg class="chip v-high" viewBox="0 0 176 32" role="img" aria-label="3.00 volts, far above the window.">
+              <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+              <g class="t"><line x1="13.9" y1="20" x2="13.9" y2="24"/><line x1="52.9" y1="20" x2="52.9" y2="24"/><line x1="91.9" y1="20" x2="91.9" y2="24"/><line x1="130.9" y1="20" x2="130.9" y2="24"/></g>
+              <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+              <polygon class="wedge" points="150.4,19 145.9,11 154.9,11"/>
+              <line class="stem" x1="150.4" y1="11" x2="150.4" y2="6"/>
+              <text x="142" y="10" text-anchor="end">3.00 V</text>
+            </svg>
+            <span class="state s-live">in production</span>
+          </div>
+        </div>
+
+        <div class="spec" style="border-bottom:0;padding-bottom:0">
+          <div class="spec-id"><span class="lab">Scale</span></div>
+          <div>
+            <svg class="dwg" viewBox="0 0 26 4" aria-hidden="true">
+              <line class="rl" x1="1" y1="1" x2="21" y2="1"/>
+              <g class="rt">
+                <line x1="1" y1="1" x2="1" y2="2.8"/><line x1="2" y1="1" x2="2" y2="2"/>
+                <line x1="3" y1="1" x2="3" y2="2"/><line x1="4" y1="1" x2="4" y2="2"/>
+                <line x1="5" y1="1" x2="5" y2="2"/><line x1="6" y1="1" x2="6" y2="2.8"/>
+                <line x1="7" y1="1" x2="7" y2="2"/><line x1="8" y1="1" x2="8" y2="2"/>
+                <line x1="9" y1="1" x2="9" y2="2"/><line x1="10" y1="1" x2="10" y2="2"/>
+                <line x1="11" y1="1" x2="11" y2="2.8"/><line x1="12" y1="1" x2="12" y2="2"/>
+                <line x1="13" y1="1" x2="13" y2="2"/><line x1="14" y1="1" x2="14" y2="2"/>
+                <line x1="15" y1="1" x2="15" y2="2"/><line x1="16" y1="1" x2="16" y2="2.8"/>
+                <line x1="17" y1="1" x2="17" y2="2"/><line x1="18" y1="1" x2="18" y2="2"/>
+                <line x1="19" y1="1" x2="19" y2="2"/><line x1="20" y1="1" x2="20" y2="2"/>
+                <line x1="21" y1="1" x2="21" y2="2.8"/>
+              </g>
+            </svg>
+            <div class="rule-nums"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+          </div>
+          <div class="spec-v"><span class="lab">millimeters</span></div>
+        </div>
+
+      </div>
+      <p class="tray-foot">
+        Six of the thirteen entries in this shell are shown. CR2032 is here on
+        purpose: it is the cell people most often have in a drawer, and it is the
+        one this compartment can never take.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 03 THE 1.2 MM ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="miss">
+    <div class="sec-head">
+      <span class="sec-no">03</span>
+      <h2>The 1.2 mm</h2>
+    </div>
+    <div class="split">
+      <figure class="instrument">
+        <div class="instrument-head">
+          <span class="lab">Compartment section</span>
+          <span class="lab">to scale</span>
+        </div>
+        <svg class="fitd" viewBox="0 0 256 150" role="img"
+             aria-label="Compartment section drawn to scale. LR44 at 5.4 millimeters reaches the contact. LR43 at 4.2 millimeters leaves a 1.2 millimeter gap below the contact.">
+          <!-- contact / lid -->
+          <text class="tiny" x="8" y="56">CONTACT AT 5.4 MM</text>
+          <line class="lid" x1="8" y1="63.4" x2="248" y2="63.4"/>
+          <!-- floor -->
+          <line class="floor" x1="8" y1="112" x2="248" y2="112"/>
+          <g class="hatch">
+            <line x1="8" y1="118" x2="14" y2="112"/><line x1="20" y1="118" x2="26" y2="112"/>
+            <line x1="32" y1="118" x2="38" y2="112"/><line x1="44" y1="118" x2="50" y2="112"/>
+            <line x1="56" y1="118" x2="62" y2="112"/><line x1="68" y1="118" x2="74" y2="112"/>
+            <line x1="80" y1="118" x2="86" y2="112"/><line x1="92" y1="118" x2="98" y2="112"/>
+            <line x1="104" y1="118" x2="110" y2="112"/><line x1="116" y1="118" x2="122" y2="112"/>
+            <line x1="128" y1="118" x2="134" y2="112"/><line x1="140" y1="118" x2="146" y2="112"/>
+            <line x1="152" y1="118" x2="158" y2="112"/><line x1="164" y1="118" x2="170" y2="112"/>
+            <line x1="176" y1="118" x2="182" y2="112"/><line x1="188" y1="118" x2="194" y2="112"/>
+            <line x1="200" y1="118" x2="206" y2="112"/><line x1="212" y1="118" x2="218" y2="112"/>
+            <line x1="224" y1="118" x2="230" y2="112"/><line x1="236" y1="118" x2="242" y2="112"/>
+          </g>
+          <!-- LR44 : reaches the contact -->
+          <rect class="can" x="14" y="63.4" width="104.4" height="48.6" rx="4"/>
+          <rect class="cap" x="20.3" y="63.4" width="91.8" height="14.4" rx="2"/>
+          <text x="66.2" y="130" text-anchor="middle">LR44</text>
+          <text class="tiny" x="66.2" y="143" text-anchor="middle">5.4 MM &#183; CLOSES</text>
+          <!-- LR43 : 1.2 mm gap -->
+          <rect class="void" x="132" y="63.4" width="104.4" height="10.8"/>
+          <rect class="can" x="132" y="74.2" width="104.4" height="37.8" rx="4"/>
+          <rect class="cap" x="138.3" y="74.2" width="91.8" height="11.7" rx="2"/>
+          <text x="184.2" y="130" text-anchor="middle">LR43</text>
+          <text class="bad" x="184.2" y="143" text-anchor="middle">1.2 MM SHORT</text>
+        </svg>
+        <figcaption>
+          Both cells are 11.6 mm across, so both drop into the same well. Only one
+          of them touches the contact.
+        </figcaption>
+      </figure>
+
+      <div class="prose">
+        <p>
+          <strong>1.2 mm is the whole difference between LR43 and LR44</strong>,
+          and it is invisible in a parts bin. The diameter matches, the cell slides
+          in, the door closes, and nothing happens &mdash; or worse, it works
+          intermittently while the spring contact bridges the gap under pressure
+          and lets go when the case is knocked.
+        </p>
+        <p>
+          This is why the site never answers a fit question with a table of
+          numbers alone. The red band above is the missing 1.2 mm, drawn at the
+          same scale as the cell it belongs to. If you can see it, you do not have
+          to compute it.
+        </p>
+        <p>
+          The reverse error exists too: a cell 1.2 mm proud of its envelope will
+          hold the door open or deform the contact. Both directions are height
+          clashes, and both are listed under
+          <a href="#">near misses</a> for this shell.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 VOLTAGE ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="voltage">
+    <div class="sec-head">
+      <span class="sec-no">04</span>
+      <h2>What fits is not what is right</h2>
+    </div>
+
+    <div class="split">
+      <figure class="instrument">
+        <div class="instrument-head">
+          <span class="lab">Nominal voltage</span>
+          <span class="lab">Window 1.45&ndash;1.60</span>
+        </div>
+        <svg class="railv" viewBox="0 0 256 372" role="img"
+             aria-label="Vertical voltage scale from 1.2 to 3.2 volts. MR44 at 1.35 volts sits below the interchange window; LR44 at 1.50 volts, this cell, and SR44 at 1.55 volts sit inside it; CR2032 at 3.00 volts sits far above it.">
+          <rect class="win" x="54" y="273.6" width="72" height="23.4"/>
+          <line class="ax" x1="72" y1="18" x2="72" y2="344"/>
+          <g class="tk">
+            <line x1="64" y1="336" x2="72" y2="336"/>
+            <line x1="64" y1="320.4" x2="72" y2="320.4"/>
+            <line x1="64" y1="304.8" x2="72" y2="304.8"/>
+            <line x1="64" y1="273.6" x2="72" y2="273.6"/>
+            <line x1="64" y1="258" x2="72" y2="258"/>
+            <line x1="64" y1="242.4" x2="72" y2="242.4"/>
+            <line x1="64" y1="226.8" x2="72" y2="226.8"/>
+            <line x1="64" y1="195.6" x2="72" y2="195.6"/>
+            <line x1="64" y1="180" x2="72" y2="180"/>
+            <line x1="64" y1="164.4" x2="72" y2="164.4"/>
+            <line x1="64" y1="148.8" x2="72" y2="148.8"/>
+            <line x1="64" y1="117.6" x2="72" y2="117.6"/>
+            <line x1="64" y1="102" x2="72" y2="102"/>
+            <line x1="64" y1="86.4" x2="72" y2="86.4"/>
+            <line x1="64" y1="70.8" x2="72" y2="70.8"/>
+            <line x1="64" y1="39.6" x2="72" y2="39.6"/>
+            <line x1="64" y1="24" x2="72" y2="24"/>
+          </g>
+          <g class="tkM">
+            <line x1="56" y1="289.2" x2="72" y2="289.2"/>
+            <line x1="56" y1="211.2" x2="72" y2="211.2"/>
+            <line x1="56" y1="133.2" x2="72" y2="133.2"/>
+            <line x1="56" y1="55.2" x2="72" y2="55.2"/>
+          </g>
+          <text x="50" y="293.2" text-anchor="end">1.5</text>
+          <text x="50" y="215.2" text-anchor="end">2.0</text>
+          <text x="50" y="137.2" text-anchor="end">2.5</text>
+          <text x="50" y="59.2" text-anchor="end">3.0</text>
+          <text class="unit" x="50" y="22" text-anchor="end">VOLTS</text>
+
+          <g class="n-danger">
+            <polygon class="wedge" points="72,55.2 92,52.6 92,57.8"/>
+            <polyline class="lead" points="92,55.2 110,55.2 120,55.2"/>
+            <text class="val" x="126" y="59">3.00 V</text>
+            <text class="who" x="126" y="71">CR2032 lithium</text>
+            <text class="who2" x="126" y="83">other shell &#183; 20.0 &times; 3.2</text>
+          </g>
+
+          <g class="n-signal">
+            <polygon class="wedge" points="72,281.4 92,278.8 92,284"/>
+            <polyline class="lead" points="92,281.4 110,258 120,258"/>
+            <text class="val" x="126" y="262">1.55 V</text>
+            <text class="who" x="126" y="274">SR44 silver oxide</text>
+          </g>
+
+          <g class="n-signal n-self">
+            <polygon class="wedge" points="72,289.2 92,286.6 92,291.8"/>
+            <polyline class="lead" points="92,289.2 110,296 120,296"/>
+            <text class="val" x="126" y="300">1.50 V</text>
+            <text class="who" x="126" y="312">LR44 alkaline</text>
+            <text class="this" x="126" y="324">THIS CELL</text>
+          </g>
+
+          <g class="n-caution">
+            <polygon class="wedge" points="72,312.6 92,310 92,315.2"/>
+            <polyline class="lead" points="92,312.6 110,340 120,340"/>
+            <text class="val" x="126" y="344">1.35 V</text>
+            <text class="who" x="126" y="356">MR44 mercuric oxide</text>
+            <line class="strike" x1="126" y1="352.6" x2="154" y2="352.6"/>
+          </g>
+        </svg>
+        <figcaption>
+          Position on the scale, not a figure in a cell. Inside the band: a
+          drop-in. Below it: the device reads wrong. Above it: wrong class.
+        </figcaption>
+      </figure>
+
+      <div class="prose">
+        <p>
+          The 11.6 &times; 5.4 mm can has carried three chemistries. Two of them
+          land inside the interchange window and are interchangeable in nearly
+          every consumer device. The third does not, and that is where the damage
+          is done.
+        </p>
+        <p>
+          <strong>A meter calibrated on 1.35 V mercuric oxide and fed a 1.50 V
+          alkaline reads high across its whole range</strong> &mdash; light meters,
+          medical thermometers and older test gear all did this. The cell fits
+          perfectly, the needle moves, and every reading is wrong by an amount
+          that looks plausible. That is the failure this site exists to prevent.
+        </p>
+        <p>
+          Going the other way is milder but real: a device expecting 1.50 V and
+          given 1.35 V starts life already near its low-battery threshold.
+          <strong>0.05 V &mdash; alkaline to silver oxide &mdash; is inside the
+          window and is the safe swap</strong>, and silver oxide holds its voltage
+          far flatter, which is why old instruments were often converted to it.
+        </p>
+      </div>
+    </div>
+
+    <div class="trip" style="margin-top:32px">
+      <div class="card">
+        <div class="card-top"><span class="code" style="font-size:17px">SR44</span><span class="lab">+0.05 V</span></div>
+        <p class="verdict v-in"><b>Drop-in</b>
+          Same envelope, inside the window, flatter discharge. The default answer
+          when the compartment is 11.6 &times; 5.4 mm and the device cares about a
+          steady reading.</p>
+      </div>
+      <div class="card">
+        <div class="card-top"><span class="code strike" style="font-size:17px">MR44</span><span class="lab">&minus;0.15 V</span></div>
+        <p class="verdict v-low"><b>Fits &#183; reads wrong</b>
+          Withdrawn from the market. Devices designed around it need a voltage
+          adapter or a recalibration &mdash; not a lookalike cell with the right
+          diameter.</p>
+      </div>
+      <div class="card">
+        <div class="card-top"><span class="code" style="font-size:17px">CR2032</span><span class="lab">+1.50 V</span></div>
+        <p class="verdict v-high"><b>Does not fit &#183; wrong class</b>
+          20.0 mm across and double the voltage. It will not enter this
+          compartment, and if it did it would be a hazard, not a substitute.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 TABLE ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="specs">
+    <div class="sec-head">
+      <span class="sec-no">05</span>
+      <h2>The record</h2>
+    </div>
+    <div class="tscroll">
+      <table>
+        <caption>Shell 11.6 &times; 5.4 mm and its two near neighbors &#183; nominal voltage shown as a position on the same scale in every row</caption>
+        <thead>
+          <tr>
+            <th scope="col">Designation</th>
+            <th scope="col">Chemistry</th>
+            <th scope="col">Nominal</th>
+            <th scope="col">&Oslash;</th>
+            <th scope="col">Height</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="self">
+            <td class="n">LR44 <span style="color:var(--ink-3)">(A76)</span></td>
+            <td>Alkaline MnO<sub>2</sub></td>
+            <td>
+              <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.50 volts, inside the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="33.4,19 28.9,11 37.9,11"/>
+                <line class="stem" x1="33.4" y1="11" x2="33.4" y2="6"/>
+                <text x="43" y="10">1.50 V</text>
+              </svg>
+            </td>
+            <td class="n">11.6 mm</td>
+            <td class="n">5.4 mm</td>
+            <td class="n">150 mAh</td>
+            <td><span class="state s-self">this cell</span></td>
+          </tr>
+          <tr>
+            <td class="n">SR44 <span style="color:var(--ink-3)">(357/303)</span></td>
+            <td>Silver oxide</td>
+            <td>
+              <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+                <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+                <text x="47" y="10">1.55 V</text>
+              </svg>
+            </td>
+            <td class="n">11.6 mm</td>
+            <td class="n">5.4 mm</td>
+            <td class="n">150 mAh</td>
+            <td><span class="state s-live">in production</span></td>
+          </tr>
+          <tr>
+            <td class="n"><span class="strike">303</span></td>
+            <td>Silver oxide</td>
+            <td>
+              <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+                <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+                <text x="47" y="10">1.55 V</text>
+              </svg>
+            </td>
+            <td class="n">11.6 mm</td>
+            <td class="n">5.4 mm</td>
+            <td class="n">&mdash;</td>
+            <td><span class="state s-out">out of production</span></td>
+          </tr>
+          <tr>
+            <td class="n"><span class="strike">LR43</span> <span style="color:var(--ink-3)">(186)</span></td>
+            <td>Alkaline MnO<sub>2</sub></td>
+            <td>
+              <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.50 volts, inside the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="33.4,19 28.9,11 37.9,11"/>
+                <line class="stem" x1="33.4" y1="11" x2="33.4" y2="6"/>
+                <text x="43" y="10">1.50 V</text>
+              </svg>
+            </td>
+            <td class="n">11.6 mm</td>
+            <td class="n" style="color:var(--danger)">4.2 mm</td>
+            <td class="n">&mdash;</td>
+            <td><span class="state s-out">out of production</span></td>
+          </tr>
+          <tr>
+            <td class="n"><span class="strike">SR43</span> <span style="color:var(--ink-3)">(301)</span></td>
+            <td>Silver oxide</td>
+            <td>
+              <svg class="chip v-in" viewBox="0 0 176 32" role="img" aria-label="1.55 volts, inside the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="37.3,19 32.8,11 41.8,11"/>
+                <line class="stem" x1="37.3" y1="11" x2="37.3" y2="6"/>
+                <text x="47" y="10">1.55 V</text>
+              </svg>
+            </td>
+            <td class="n">11.6 mm</td>
+            <td class="n" style="color:var(--danger)">4.2 mm</td>
+            <td class="n">&mdash;</td>
+            <td><span class="state s-out">out of production</span></td>
+          </tr>
+          <tr>
+            <td class="n">CR2032</td>
+            <td>Lithium Li/MnO<sub>2</sub></td>
+            <td>
+              <svg class="chip v-high" viewBox="0 0 176 32" role="img" aria-label="3.00 volts, far above the window.">
+                  <line class="base" x1="10" y1="20" x2="166" y2="20"/>
+                <g class="tM"><line x1="10" y1="20" x2="10" y2="27"/><line x1="33.4" y1="20" x2="33.4" y2="27"/><line x1="72.4" y1="20" x2="72.4" y2="27"/><line x1="111.4" y1="20" x2="111.4" y2="27"/><line x1="150.4" y1="20" x2="150.4" y2="27"/><line x1="166" y1="20" x2="166" y2="27"/></g>
+                <polygon class="wedge" points="150.4,19 145.9,11 154.9,11"/>
+                <line class="stem" x1="150.4" y1="11" x2="150.4" y2="6"/>
+                <text x="142" y="10" text-anchor="end">3.00 V</text>
+              </svg>
+            </td>
+            <td class="n" style="color:var(--danger)">20.0 mm</td>
+            <td class="n">3.2 mm</td>
+            <td class="n">235 mAh</td>
+            <td><span class="state s-live">in production</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="slot-note" style="max-width:70ch">
+      The table scrolls inside its own frame on a narrow screen. The page itself
+      never scrolls sideways at any width.
+    </p>
+  </section>
+
+  <!-- ============ 06 ROUTES ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="routes">
+    <div class="sec-head">
+      <span class="sec-no">06</span>
+      <h2>Routes through this shell</h2>
+    </div>
+    <p class="prose sec-note">
+      Every discontinued entry carries a route. A route is not a claim that the
+      two cells are the same; it is a statement of what to buy and what changes
+      when you do.
+    </p>
+
+    <div class="routes" style="margin-top:24px">
+
+      <div class="route-row">
+        <span class="code strike" style="font-size:17px">303</span>
+        <svg class="arrow" viewBox="0 0 56 16" aria-hidden="true">
+          <line x1="0" y1="8" x2="46" y2="8"/><polygon points="56,8 44,3 44,13"/>
+        </svg>
+        <span class="code" style="font-size:17px">SR44 / 357</span>
+        <p class="route-note">Same cell, current designation. Nothing changes electrically.</p>
+      </div>
+
+      <div class="route-row">
+        <span class="code strike" style="font-size:17px">MR44</span>
+        <svg class="arrow" viewBox="0 0 56 16" aria-hidden="true">
+          <line x1="0" y1="8" x2="46" y2="8"/><polygon points="56,8 44,3 44,13"/>
+        </svg>
+        <span class="code" style="font-size:17px">SR44 + adapter</span>
+        <p class="route-note">
+          Fits without help, but <em>the voltage rises by 0.20 V</em>. A device
+          calibrated on mercuric oxide needs a voltage-dropping adapter or a
+          recalibration before its readings mean anything again.
+        </p>
+      </div>
+
+      <div class="route-row">
+        <span class="code strike" style="font-size:17px">LR43 / SR43</span>
+        <svg class="arrow" viewBox="0 0 56 16" aria-hidden="true">
+          <line x1="0" y1="8" x2="46" y2="8"/><polygon points="56,8 44,3 44,13"/>
+        </svg>
+        <span class="code" style="font-size:17px">no route</span>
+        <p class="route-note">
+          <em>1.2 mm short of this shell.</em> They belong to the
+          11.6 &times; 4.2 mm family and have their own page; stacking or shimming
+          them is not a substitution.
+        </p>
+      </div>
+
+      <div class="route-row">
+        <span class="code" style="font-size:17px">LR44</span>
+        <svg class="arrow" viewBox="0 0 56 16" aria-hidden="true">
+          <line x1="0" y1="8" x2="46" y2="8"/><polygon points="56,8 44,3 44,13"/>
+        </svg>
+        <span class="code" style="font-size:17px">still supplied</span>
+        <p class="route-note">No route needed. Sold under six designations; any of them is this cell.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 07 NEIGHBORS ============ -->
+  <div class="ruler" aria-hidden="true"></div>
+  <section class="sec" id="neighbors">
+    <div class="sec-head">
+      <span class="sec-no">07</span>
+      <h2>Neighbors</h2>
+    </div>
+    <div class="entries">
+      <div class="entrycard">
+        <h3>Same shell</h3>
+        <p>Thirteen entries at 11.6 &times; 5.4 mm, three chemistries between them.</p>
+        <div class="links"><a href="#">SR44</a><a href="#">303</a><a href="#">MR44</a><a href="#">A76</a><a href="#">V13GA</a></div>
+      </div>
+      <div class="entrycard">
+        <h3>Same diameter, lower</h3>
+        <p>11.6 mm across and 4.2 mm tall. The most frequent wrong answer to an LR44 question.</p>
+        <div class="links"><a href="#">LR43</a><a href="#">SR43</a><a href="#">Shell 11.6 &times; 4.2</a></div>
+      </div>
+      <div class="entrycard">
+        <h3>Same voltage class</h3>
+        <p>Everything nominally 1.50 V, across every shell in the catalog.</p>
+        <div class="links"><a href="#">LR41</a><a href="#">LR54</a><a href="#">LR1130</a><a href="#">All 1.50 V</a></div>
+      </div>
+      <div class="entrycard">
+        <h3>Often confused with</h3>
+        <p>Cells people bring to an LR44 compartment because they had one to hand.</p>
+        <div class="links"><a href="#">CR2032</a><a href="#">CR2025</a><a href="#">SR626SW</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AD SLOT B ============ -->
+  <section class="sec">
+    <span class="lab" style="display:block;margin-bottom:8px">Advertisement</span>
+    <div class="slot-wrap">
+      <div class="slot"><span class="slot-tag">slot B &#183; in flow</span></div>
+    </div>
+    <p class="slot-note">336 &times; 280 at every width. Same rule: no creative, no element.</p>
+  </section>
+
+</main>
+
+<!-- ============ RAIL ============ -->
+<aside class="rail" aria-label="Reading key and advertisement">
+
+  <div class="legend">
+    <h3>How to read this page</h3>
+    <svg class="keydraw" viewBox="0 0 26 8" aria-hidden="true">
+      <line x1="0" y1="7" x2="26" y2="7" stroke="var(--line)" stroke-width="1.5"/>
+      <rect x="1" y="1.6" width="11.6" height="5.4" rx="0.45" fill="var(--metal)" stroke="var(--ink)" stroke-width="1.5"/>
+      <rect x="1.7" y="1.6" width="10.2" height="1.6" rx="0.2" fill="var(--metal-cap)"/>
+      <rect x="14" y="1.6" width="11.6" height="5.4" rx="0.45" fill="none" stroke="var(--ink-3)" stroke-width="1.25" stroke-dasharray="4 3"/>
+      <line x1="14" y1="7" x2="25.6" y2="1.6" stroke="var(--ink-3)" stroke-width="1.25"/>
+    </svg>
+    <dl>
+      <dt>Solid, filled</dt>
+      <dd>Still supplied. You can buy this today.</dd>
+      <dt>Hollow, dashed, struck</dt>
+      <dd>Out of production. The row always carries a route.</dd>
+      <dt>Dashed box</dt>
+      <dd>The 11.6 &times; 5.4 mm envelope, repeated in every row at the same scale.</dd>
+      <dt>Red band</dt>
+      <dd>Missing material. The gap between a short cell and the contact.</dd>
+      <dt>Shaded band, large scale</dt>
+      <dd>The interchange window, 1.45&ndash;1.60 V for this shell.</dd>
+      <dt>Blue needle</dt>
+      <dd>Inside the window. A drop-in.</dd>
+      <dt>Amber needle</dt>
+      <dd>Below the window. It fits, and the device reads wrong.</dd>
+      <dt>Red needle</dt>
+      <dd>Above the window. Wrong class, never a substitute.</dd>
+    </dl>
+  </div>
+
+  <div>
+    <span class="lab" style="display:block;margin-bottom:8px">Advertisement</span>
+    <div class="slot-wrap">
+      <div class="slot slot--rail"><span class="slot-tag">slot C &#183; rail</span></div>
+    </div>
+    <p class="slot-note">
+      300 &times; 600 from 1080 px, where the rail column exists at all. Below
+      that the same node is declared 336 &times; 280 and flows under the article.
+      One node, two declared sizes, no hidden twin.
+    </p>
+  </div>
+
+</aside>
+</div>
+
+<footer class="foot" id="method">
+  <div class="wrap">
+    <div class="ruler" aria-hidden="true" style="margin-bottom:32px"></div>
+    <div class="foot-grid">
+      <div>
+        <h4>Method</h4>
+        <p>
+          Diameter and height come from manufacturer datasheets and IEC
+          designations. Silhouettes are generated from those two numbers at a
+          single scale per drawing, with a millimeter rule in the same frame, so a
+          drawing cannot disagree with the record it came from. Nominal voltage is
+          the open-circuit value; the interchange window is the family nominal
+          with the tolerance most compartments were designed around.
+        </p>
+      </div>
+      <div>
+        <h4>Limits</h4>
+        <ul>
+          <li>Fit is geometric only: it says nothing about current, internal resistance or shelf life.</li>
+          <li>A cell inside the window can still be wrong for a device calibrated on a specific discharge curve.</li>
+          <li>Mercuric oxide cells are withdrawn in most markets. The honest answer is an adapter or a recalibration, never a lookalike.</li>
+          <li>Nothing here is a safety certification. If a compartment shows corrosion or heat damage, stop.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>This page</h4>
+        <ul>
+          <li>Design specimen, September 2026.</li>
+          <li>System fonts only, no font files, no scripts, no external requests.</li>
+          <li>Figures for the 11.6 &times; 5.4 mm shell come from the data set.</li>
+          <li><a href="home.html">Back to the front page</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

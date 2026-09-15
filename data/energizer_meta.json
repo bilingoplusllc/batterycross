@@ -1,0 +1,14 @@
+{
+ "source": "https://data.energizer.com",
+ "endpoint": "https://data.energizer.com/wp-admin/admin-ajax.php",
+ "retrieved": "2026-09-01",
+ "products": 416,
+ "regions": {
+  "North America": 369,
+  "Latin America": 97,
+  "Europe": 134,
+  "Asia Pacific": 111
+ },
+ "sheets_parsed": 390,
+ "sha256": "336eab1124789d7d2eb6e31e91c6a4a99f29a37dbf93e7cd6a36a4b0da57320b"
+}

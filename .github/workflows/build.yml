@@ -1,0 +1,129 @@
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Зависимостей нет по решению D-009 — только стандартная библиотека.
+
+      # Разбор каждого блока `run:` ДО того, как хоть один запустится. В этом
+      # файле однажды лежало одинокое `done` — остаток удалённого цикла, — и
+      # шаг краснел всегда, а до деплоя дело не доходило никогда.
+      - name: Every run block parses as shell
+        run: python tools/lint_workflows.py
+
+      # Данные закреплены в репозитории намеренно: источник не отдаётся
+      # скрипту (403 и с браузерными заголовками), и сборка не должна зависеть
+      # от чужого сервера в момент выкладки. Здесь сверяется, что файл — тот
+      # самый скачанный и что дата, стоящая на сайте, — его дата.
+      - name: Verify the pinned data snapshot
+        run: python fetch_data.py --verify
+
+      # Сборка ИЗ ПУСТОГО каталога: то, что собирается только там, где
+      # собиралось, — не собирается.
+      - name: Build from scratch
+        run: |
+          rm -rf dist
+          python render.py
+
+      # Гейты доказывают, что умеют падать. Гейт, который ни разу не краснел,
+      # не проверен, а однажды здесь гейт печатал «пройдено», не проверив
+      # ничего. Шаг стоит ПОСЛЕ сборки: гейт «выкладка совпадает с
+      # генератором» читает dist на диске.
+      - name: Prove the gates can fail
+        run: python gates.py --selftest
+
+      - name: Gates on the built site
+        run: python gates.py
+
+      - name: Sanity check
+        run: |
+          set -e
+
+          COUNT=$(find dist -name index.html | wc -l)
+          echo "страниц собрано: $COUNT"
+          if [ "$COUNT" -lt 120 ]; then
+            echo "::error::Слишком мало страниц ($COUNT) — публикация остановлена"
+            exit 1
+          fi
+
+          for f in index.html codes/index.html shells/index.html sizes/index.html \
+                   discontinued/index.html method/index.html about/index.html \
+                   privacy/index.html terms/index.html contact/index.html \
+                   404.html robots.txt sitemap.xml _headers _redirects; do
+            [ -s "dist/$f" ] || { echo "::error::нет файла $f"; exit 1; }
+          done
+          echo "обязательные файлы на месте"
+
+          # Языковой шлюз. Сайт англоязычный; русский комментарий однажды уехал
+          # в отдаваемый _headers. ТОЛЬКО текстовые файлы: grep по всему dist
+          # читает бинарники, и случайные байты шрифта попадают в кириллический
+          # диапазон — на соседнем сайте фермы этот гейт так и «нашёл» кириллицу
+          # в og.png.
+          TEXT=(-name '*.html' -o -name '*.xml' -o -name '*.txt' -o -name '*.json' \
+                -o -name '*.css' -o -name '*.js' -o -name '*.svg' -o -name '*.csv')
+          CYR=$(find dist -type f \( "${TEXT[@]}" \) -exec grep -lP '[\x{0400}-\x{04FF}]' {} + | wc -l)
+          if [ "$CYR" -gt 0 ]; then
+            echo "::error::Кириллица найдена в $CYR файлах — публикация остановлена"
+            find dist -type f \( "${TEXT[@]}" \) -exec grep -lP '[\x{0400}-\x{04FF}]' {} + | head -5
+            exit 1
+          fi
+          echo "языковая проверка пройдена"
+
+          # Адрес будущего сайта обязан стоять в канонических ссылках. Локальный
+          # адрес, уехавший в canonical, — это выкладка, указывающая на ничьё.
+          if grep -rl "127\.0\.0\.1\|localhost" dist --include=*.html --include=*.xml | head -1 | grep -q .; then
+            echo "::error::В отдаваемом остался локальный адрес"
+            exit 1
+          fi
+          echo "локальных адресов нет"
+
+      # Повторный прогон обязан дать те же байты: недетерминированная сборка
+      # делает бессмысленной любую сверку «на диске то же, что собрано».
+      - name: Rebuild must be byte-identical
+        run: |
+          set -e
+          find dist -type f | sort | xargs sha256sum > /tmp/before.txt
+          python render.py > /dev/null
+          find dist -type f | sort | xargs sha256sum > /tmp/after.txt
+          if ! diff -q /tmp/before.txt /tmp/after.txt; then
+            echo "::error::Пересборка дала другой результат — сборка недетерминирована"
+            diff /tmp/before.txt /tmp/after.txt | head -20
+            exit 1
+          fi
+          echo "сборка детерминирована"
+
+      # Wrangler не создаёт проект сам и падает с «Project not found». Шаг
+      # идемпотентный: если проект уже есть, команда падает — это ожидаемо.
+      # Создание держим здесь, а не в дашборде, чтобы выкладка воспроизводилась
+      # из репозитория.
+      - name: Ensure Pages project exists
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create batterycross --production-branch=main
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=batterycross --branch=main

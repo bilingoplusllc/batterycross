@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LR44 (A76) — 11.6 × 5.4 mm, 1.50 V alkaline | BatteryCross</title>
+<meta name="description" content="LR44 drawn to scale: shell family, voltage deviation, clearance, and the discontinued codes that land here.">
+<style>
+/* ==========================================================================
+   BATTERYCROSS / direction "VEDOMOST" (parts schedule)
+   One accent (signal orange) is spent on voltage error only. Everything else
+   is steel. Three rule weights, no fourth. The only rounded corners in the
+   layout belong to real cells, drawn to real millimeters.
+   ========================================================================== */
+
+:root{
+  color-scheme: light dark;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", "Liberation Mono", Menlo, Consolas, monospace;
+
+  /* steel */
+  --bg:#d9dce0;
+  --panel:#f5f6f7;
+  --panel-2:#e7eaec;
+  --ink:#0d1114;
+  --ink-2:#4b535a;
+  --line-1:#737b83;
+  --line-2:#4e565e;
+  --line-3:#0d1114;
+  --steel:#828c94;
+  --slot:#c9cdd1;
+  --on-steel:#0d1114;
+  --slot-ink:#3c444b;
+
+  /* the single signal */
+  --signal:#a83a00;
+  --on-signal:#ffffff;
+
+  --shade: rgba(0,0,0,.30);
+
+  /* three rule weights, no fourth */
+  --w1:1px;   /* between rows of one list          */
+  --w2:2px;   /* closes a head, divides columns    */
+  --w3:5px;   /* opens a section, closes the page  */
+
+  /* one spacing unit: the height of half a data row */
+  --u:7px;
+  --measure:33rem;
+  --pad:14px;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1114;
+    --panel:#171b1f;
+    --panel-2:#1f252a;
+    --ink:#e7eaec;
+    --ink-2:#a3acb4;
+    --line-1:#6c757d;
+    --line-2:#7a838b;
+    --line-3:#c8cfd5;
+    --steel:#7d868e;
+    --slot:#2a3037;
+    --on-steel:#12161a;
+    --slot-ink:#aab3ba;
+    --signal:#ff8a3d;
+    --on-signal:#14100c;
+    --shade: rgba(0,0,0,.42);
+  }
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:400 0.9375rem/1.55 var(--sans);
+  font-variant-numeric:tabular-nums;
+}
+svg{display:block}
+h1,h2,h3,p,ul,ol,dl,dd,dt,figure,table,form{margin:0;padding:0}
+ul{list-style:none}
+::selection{background:var(--ink);color:var(--bg)}
+a{color:var(--ink);text-decoration:underline;text-underline-offset:.16em;text-decoration-thickness:var(--w1)}
+a:hover{text-decoration-thickness:var(--w2)}
+:focus-visible{outline:var(--w2) solid var(--ink);outline-offset:2px}
+
+.skip{
+  display:block;width:1px;height:1px;overflow:hidden;
+  white-space:nowrap;color:var(--ink);background:var(--panel);
+}
+.skip:focus-visible{width:auto;height:auto;padding:var(--u) calc(var(--u)*2);}
+
+/* ---------- masthead ------------------------------------------------- */
+.mast{background:var(--panel);border-bottom:var(--w3) solid var(--line-3)}
+.mast__in{max-width:1360px;margin:0 auto;padding:calc(var(--u)*2) var(--pad)}
+.mast__top{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--u) calc(var(--u)*2);
+  border-bottom:var(--w1) solid var(--line-1);padding-bottom:var(--u);
+}
+.brand{
+  font:700 1.25rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  background:var(--ink);color:var(--panel);
+  padding:6px 9px 7px;text-decoration:none;
+}
+.brand:hover{text-decoration:none;background:var(--ink-2)}
+.doc{
+  font:600 0.6875rem/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);margin-left:auto;
+}
+.find{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin-top:calc(var(--u)*2)}
+.find__lab{
+  font:700 0.6875rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--panel);background:var(--ink);
+  display:flex;align-items:center;padding:0 10px;
+}
+.find__in{
+  flex:1 1 12ch;min-width:0;
+  font:700 1.0625rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink);background:var(--panel-2);
+  border:var(--w2) solid var(--line-3);border-left:0;border-right:0;
+  padding:10px 12px;
+}
+.find__in::placeholder{color:var(--ink-2);opacity:1}
+.find__go{
+  font:700 0.75rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--panel);background:var(--ink);border:var(--w2) solid var(--line-3);
+  padding:0 14px;cursor:pointer;
+}
+.find__go:hover{background:var(--ink-2)}
+
+/* ---------- page grid ------------------------------------------------ */
+.lead{max-width:1360px;margin:0 auto;padding:calc(var(--u)*3) var(--pad) 0}
+.page{
+  max-width:1360px;margin:0 auto;padding:calc(var(--u)*3) var(--pad) calc(var(--u)*6);
+  display:grid;grid-template-columns:minmax(0,1fr);gap:calc(var(--u)*4) 0;
+}
+@media (min-width:56rem){
+  .page{grid-template-columns:minmax(0,1fr) 300px}
+  .rail{grid-column:2;border-left:var(--w2) solid var(--line-2);
+        margin-left:calc(var(--u)*3);padding-left:calc(var(--u)*3)}
+  .main{grid-column:1}
+}
+
+/* ---------- sections -------------------------------------------------- */
+.sec{border-top:var(--w3) solid var(--line-3);padding-top:var(--u);margin-top:calc(var(--u)*6)}
+.sec__h{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:0 calc(var(--u)*2);
+  font:700 0.8125rem/1.25 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+}
+.sec__no{color:var(--ink-2);font-weight:400}
+.sec__sub{
+  font:400 0.6875rem/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);margin-left:auto;
+}
+.sec__body{margin-top:calc(var(--u)*2)}
+.p{max-width:var(--measure)}
+.p + .p{margin-top:calc(var(--u)*2)}
+.mut{color:var(--ink-2)}
+.note{
+  font:400 0.6875rem/1.45 var(--mono);letter-spacing:.02em;color:var(--ink-2);
+  max-width:var(--measure);margin-top:var(--u);
+}
+
+/* ---------- sheet head ------------------------------------------------ */
+.head{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:calc(var(--u)*2) calc(var(--u)*3);
+  border-bottom:var(--w3) solid var(--line-3);padding-bottom:calc(var(--u)*2);
+}
+.crumb{
+  font:600 0.6875rem/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+}
+.crumb b{color:var(--ink)}
+.bigcode{font:700 clamp(2.5rem,11vw,3.75rem)/1 var(--mono);letter-spacing:.01em;margin-top:var(--u)}
+.aliases{font:400 0.8125rem/1.5 var(--mono);color:var(--ink-2);letter-spacing:.04em;margin-top:var(--u)}
+.aliases b{color:var(--ink)}
+.plate{
+  font:700 0.6875rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  border:var(--w2) solid var(--line-3);padding:8px 11px 9px;margin-bottom:4px;
+}
+.plate--live{background:var(--ink);color:var(--panel)}
+
+/* key figures, hard grid */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));
+  gap:var(--w2);background:var(--line-2);border:var(--w2) solid var(--line-2);
+  margin-top:calc(var(--u)*3)}
+.tile{background:var(--panel);padding:calc(var(--u)*1.5) calc(var(--u)*2) calc(var(--u)*2)}
+.tile__k{font:600 0.625rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.tile__v{font:700 1.375rem/1.1 var(--mono);letter-spacing:.02em;margin-top:var(--u)}
+.tile__v small{font-size:0.8125rem;font-weight:400;color:var(--ink-2);letter-spacing:.06em}
+.tile__rail{margin-top:var(--u)}
+
+/* ---------- data panel + tables ---------------------------------------- */
+.panel{background:var(--panel);border:var(--w2) solid var(--line-2)}
+.panel__h{
+  font:700 0.6875rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  padding:var(--u) calc(var(--u)*1.5);border-bottom:var(--w2) solid var(--line-2);
+  background:var(--panel-2);
+}
+.scroller{overflow-x:auto}
+.hint{
+  font:400 0.6875rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);padding:var(--u) calc(var(--u)*1.5);border-top:var(--w1) solid var(--line-1);
+}
+table{border-collapse:collapse;width:100%}
+.tbl{font:400 0.8125rem/1.3 var(--mono);min-width:44rem}
+.tbl--slim{min-width:26rem}
+.tbl--spec{min-width:22rem}
+.tbl th{
+  text-align:left;font:700 0.6875rem/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);padding:var(--u) calc(var(--u)*1.5);
+  border-bottom:var(--w2) solid var(--line-2);white-space:nowrap;vertical-align:bottom;
+}
+.tbl td{
+  padding:var(--u) calc(var(--u)*1.5);border-bottom:var(--w1) solid var(--line-1);
+  vertical-align:middle;white-space:nowrap;
+}
+.tbl--spec td:last-child{white-space:normal}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl--spec th[scope="row"]{
+  border-bottom:var(--w1) solid var(--line-1);font-weight:600;color:var(--ink-2);
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.tbl--spec tbody tr:last-child th{border-bottom:0}
+.num{text-align:right}
+.gr{border-left:var(--w1) solid var(--line-1)}
+.code{
+  font-weight:700;letter-spacing:.04em;
+  padding-left:calc(var(--u)*2.5);
+  background-image:linear-gradient(var(--line-3),var(--line-3));
+  background-repeat:no-repeat;background-size:5px 100%;
+}
+tr.off .code{
+  background-image:repeating-linear-gradient(180deg,var(--line-2) 0 3px,transparent 3px 6px);
+  background-repeat:no-repeat;background-size:5px 100%;
+}
+tr.off td{background-color:var(--panel-2)}
+.alias{color:var(--ink-2)}
+.state{font-size:0.6875rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.repl{font-weight:700}
+.warn{color:var(--signal)}
+.warnpill{
+  font:700 0.6875rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  background:var(--signal);color:var(--on-signal);padding:3px 6px 4px;
+}
+
+/* ---------- silhouettes ------------------------------------------------ */
+.sil__body{fill:var(--steel);stroke:var(--line-3);stroke-width:1.5}
+.sil__body--off{fill:none;stroke:var(--line-2);stroke-width:1.5;stroke-dasharray:5 3}
+.sil__seam{stroke:var(--line-3);stroke-width:1}
+.sil__seam--off{stroke:var(--line-2);stroke-width:1;stroke-dasharray:3 3}
+.sil__pol{font:700 11px/1 var(--mono);fill:var(--on-steel)}
+.sil__pol--off{fill:var(--ink-2)}
+.dim{stroke:var(--line-2);stroke-width:1;fill:none}
+.dimtxt{font:600 11px/1 var(--mono);fill:var(--ink-2);letter-spacing:.04em}
+.rultxt{font:400 10px/1 var(--mono);fill:var(--ink-2)}
+.lid{stroke:var(--line-3);stroke-width:1.5;stroke-dasharray:6 4;fill:none}
+.floor{stroke:var(--line-3);stroke-width:2}
+.over{fill:var(--signal)}
+.overtxt{font:700 11px/1 var(--mono);fill:var(--signal);letter-spacing:.06em}
+.figtxt{font:600 11px/1 var(--mono);fill:var(--ink);letter-spacing:.04em}
+
+.figure{padding:calc(var(--u)*3) calc(var(--u)*2)}
+.figrow{display:flex;flex-wrap:wrap;align-items:stretch}
+.figrow > .scroller{flex:1 1 18rem;min-width:0}
+.tblock{flex:0 0 auto;min-width:16rem;font:400 0.75rem/1.3 var(--mono);
+  border-left:var(--w2) solid var(--line-2)}
+.tblock > div{display:grid;grid-template-columns:7rem minmax(0,1fr);
+  border-bottom:var(--w1) solid var(--line-1)}
+.tblock > div:last-child{border-bottom:0}
+.tblock dt{padding:var(--u) calc(var(--u)*1.5);color:var(--ink-2);
+  text-transform:uppercase;letter-spacing:.1em;font-size:0.625rem;font-weight:600}
+.tblock dd{padding:var(--u) calc(var(--u)*1.5);font-weight:600;
+  border-left:var(--w1) solid var(--line-1)}
+@media (max-width:47.9375rem){
+  .tblock{flex:1 1 100%;border-left:0;border-top:var(--w2) solid var(--line-2)}
+}
+.strip{display:flex;align-items:flex-end;gap:calc(var(--u)*3);padding:calc(var(--u)*3) calc(var(--u)*1.5) calc(var(--u)*2)}
+.cellcard{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:var(--u)}
+.cellcard__code{font:700 0.875rem/1 var(--mono);letter-spacing:.04em}
+.cellcard__meta{font:400 0.6875rem/1.35 var(--mono);color:var(--ink-2);letter-spacing:.04em;white-space:nowrap}
+.cellcard__state{font:700 0.625rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.cellcard--this{border-bottom:var(--w3) solid var(--line-3);padding-bottom:var(--u)}
+.thistag{font:700 0.625rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  background:var(--ink);color:var(--panel);padding:3px 5px 4px}
+.alien{
+  align-self:stretch;border-left:var(--w3) solid var(--line-3);
+  padding-left:calc(var(--u)*3);display:flex;align-items:flex-end;
+}
+.vm{width:100%;height:12px;background:var(--panel-2);border:var(--w1) solid var(--line-2);
+  display:flex;align-items:stretch}
+.vm__f{display:block;background:var(--line-2)}
+.vm__f--warn{background-color:var(--signal);
+  background-image:repeating-linear-gradient(135deg,var(--shade) 0 3px,transparent 3px 7px)}
+.vm__f--off{clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%)}
+
+/* ---------- deviation rail (the safety device) -------------------------- */
+.dv{
+  display:grid;gap:2px calc(var(--u)*1.5);align-items:center;
+  padding:var(--u) calc(var(--u)*1.5);border-bottom:var(--w1) solid var(--line-1);
+  grid-template-columns:5rem 4rem minmax(90px,1fr) 4.75rem;
+  grid-template-areas:"code volt rail delta" "note note note note";
+  font:400 0.8125rem/1.3 var(--mono);
+}
+.dv:last-child{border-bottom:0}
+.dv__code{grid-area:code;font-weight:700;letter-spacing:.04em}
+.dv__volt{grid-area:volt;color:var(--ink-2)}
+.dv__rail{grid-area:rail;display:grid;grid-template-columns:1fr 2px 1fr;min-height:20px}
+.dv__delta{grid-area:delta;text-align:right;font-weight:700}
+.dv__note{grid-area:note;font-size:0.6875rem;color:var(--ink-2);letter-spacing:.02em;white-space:normal}
+.dv__side{display:flex;align-items:center;
+  background-image:repeating-linear-gradient(90deg,var(--line-1) 0 1px,transparent 1px 25%)}
+.dv__side--neg{justify-content:flex-end}
+.dv__zero{background:var(--line-3)}
+.dv__bar{display:block;height:12px;background:var(--line-2)}
+.dv__bar--warn{background-color:var(--signal);
+  background-image:repeating-linear-gradient(135deg,var(--shade) 0 3px,transparent 3px 7px)}
+.dv__bar--off{clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%)}
+.dv--head{border-bottom:var(--w2) solid var(--line-2);
+  font:700 0.6875rem/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.dv--head .dv__rail{display:flex;justify-content:space-between;align-items:flex-end;min-height:0}
+@media (max-width:34rem){
+  .dv{grid-template-columns:1fr auto;
+      grid-template-areas:"code volt" "rail delta" "note note"}
+  .dv__volt{text-align:right}
+}
+
+/* ---------- legend ------------------------------------------------------ */
+.leg{display:grid;gap:calc(var(--u)*2);padding:calc(var(--u)*2)}
+.leg__row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:calc(var(--u)*1.5);align-items:center}
+.leg__t{font:400 0.75rem/1.35 var(--mono);color:var(--ink-2)}
+.leg__t b{color:var(--ink);display:block;font-size:0.75rem;letter-spacing:.06em;text-transform:uppercase}
+.leg__bar{height:12px;background:var(--line-2)}
+.leg__bar--warn{background-color:var(--signal);
+  background-image:repeating-linear-gradient(135deg,var(--shade) 0 3px,transparent 3px 7px)}
+.leg__arrow{font:700 1.125rem/1 var(--mono);text-align:center}
+
+/* ---------- ad slots ---------------------------------------------------- */
+.slot{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  margin:0 auto;background:var(--slot);color:var(--slot-ink);
+  border:var(--w1) solid var(--line-2);
+  font:600 0.625rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+}
+.slot::after{content:"336 × 280";font-size:0.8125rem;letter-spacing:.06em;font-weight:700}
+.slot--lb{width:min(336px,100%);height:280px}
+@media (min-width:34rem){
+  .slot--lb{width:min(728px,100%);height:90px}
+  .slot--lb::after{content:"728 × 90"}
+}
+.slot--mrec{width:min(336px,100%);height:280px;margin-top:calc(var(--u)*4)}
+.slot--sky{width:min(300px,100%);height:600px}
+.slot--sky::after{content:"300 × 600"}
+.slotnote{
+  font:400 0.6875rem/1.45 var(--mono);color:var(--ink-2);
+  max-width:var(--measure);margin:var(--u) auto 0;text-align:center;
+}
+
+/* ---------- rail -------------------------------------------------------- */
+.rail__h{
+  font:700 0.6875rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  border-bottom:var(--w2) solid var(--line-2);padding-bottom:var(--u);
+}
+.rail__block{margin-bottom:calc(var(--u)*4)}
+.rail__list{font:400 0.8125rem/1.6 var(--mono)}
+.rail__list li{border-bottom:var(--w1) solid var(--line-1);padding:5px 0;
+  display:flex;justify-content:space-between;gap:var(--u)}
+.rail__list li:last-child{border-bottom:0}
+.rail__list .mut{color:var(--ink-2)}
+
+/* ---------- footer ------------------------------------------------------ */
+.foot{border-top:var(--w3) solid var(--line-3);background:var(--panel)}
+.foot__in{
+  max-width:1360px;margin:0 auto;padding:calc(var(--u)*3) var(--pad) calc(var(--u)*6);
+  display:grid;gap:calc(var(--u)*2);
+}
+@media (min-width:48rem){.foot__in{grid-template-columns:2fr 1fr 1fr}}
+.foot__h{font:700 0.6875rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:var(--u)}
+.foot__t{font:400 0.8125rem/1.5 var(--mono);color:var(--ink-2);max-width:44ch}
+.foot__list{font:400 0.8125rem/1.7 var(--mono)}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to the sheet</a>
+
+<header class="mast">
+  <div class="mast__in">
+    <div class="mast__top">
+      <a class="brand" href="home.html">BatteryCross</a>
+      <p class="doc">Item sheet &middot; shell 11.6 &times; 5.4 &middot; rev 2026.09</p>
+    </div>
+    <div class="find">
+      <span class="find__lab" id="lk">Part code</span>
+      <input class="find__in" id="q" type="text" inputmode="text" autocomplete="off" spellcheck="false"
+             aria-labelledby="lk" placeholder="LR44">
+      <button class="find__go" type="button">Look up</button>
+    </div>
+  </div>
+</header>
+
+<div class="lead">
+  <div class="slot slot--lb"><span>Advertisement</span></div>
+  <p class="slotnote">Filled slot shown at its real size. The element is written into the page only when a creative exists, so no empty box is ever left in the markup.</p>
+</div>
+
+<div class="page">
+  <main class="main" id="main">
+
+    <div class="head">
+      <div>
+        <p class="crumb"><a href="home.html">Catalog</a> / <a href="home.html#shell-1154">Shell 11.6 &times; 5.4 mm</a> / <b>LR44</b></p>
+        <h1 class="bigcode">LR44</h1>
+        <p class="aliases">Also stamped: <b>A76</b> &middot; <b>AG13</b> &middot; <b>LR1154</b> &middot; <b>V13GA</b></p>
+      </div>
+      <p class="plate plate--live">In production</p>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <p class="tile__k">Nominal</p>
+        <p class="tile__v">1.50 <small>V</small></p>
+        <div class="tile__rail vm" role="img" aria-label="1.50 volts on a 1.30 to 1.60 volt rail">
+          <i class="vm__f" style="width:66.7%"></i>
+        </div>
+      </div>
+      <div class="tile">
+        <p class="tile__k">Diameter</p>
+        <p class="tile__v">11.6 <small>mm</small></p>
+      </div>
+      <div class="tile">
+        <p class="tile__k">Height</p>
+        <p class="tile__v">5.4 <small>mm</small></p>
+      </div>
+      <div class="tile">
+        <p class="tile__k">Capacity</p>
+        <p class="tile__v">150 <small>mA&middot;h</small></p>
+      </div>
+      <div class="tile">
+        <p class="tile__k">Chemistry</p>
+        <p class="tile__v" style="font-size:1rem;line-height:1.3">Alkaline<br>MnO<sub>2</sub></p>
+      </div>
+    </div>
+
+    <section class="sec" id="scale">
+      <h2 class="sec__h"><span class="sec__no">1.0</span> Silhouette
+        <span class="sec__sub">side elevation &middot; 12 px = 1 mm</span></h2>
+      <div class="sec__body">
+        <div class="panel">
+          <div class="figrow">
+          <div class="scroller">
+            <div class="figure" style="min-width:270px">
+              <svg width="252" height="146" viewBox="0 0 252 146" role="img"
+                   aria-label="LR44 in side elevation, 11.6 millimeters across and 5.4 millimeters tall, cap positive on top">
+                <!-- the cell -->
+                <rect class="sil__body" x="26" y="39.2" width="139.2" height="64.8" rx="11"/>
+                <line class="sil__seam" x1="26" y1="58.6" x2="165.2" y2="58.6"/>
+                <line class="sil__seam" x1="38.5" y1="39.2" x2="38.5" y2="58.6"/>
+                <line class="sil__seam" x1="152.7" y1="39.2" x2="152.7" y2="58.6"/>
+                <text class="sil__pol" x="95.6" y="53" text-anchor="middle">+ CAP</text>
+                <text class="sil__pol" x="95.6" y="88" text-anchor="middle">&minus; CAN</text>
+                <!-- width dimension -->
+                <line class="dim" x1="26" y1="106" x2="26" y2="126"/>
+                <line class="dim" x1="165.2" y1="106" x2="165.2" y2="126"/>
+                <line class="dim" x1="26" y1="122" x2="165.2" y2="122"/>
+                <line class="dim" x1="26" y1="117" x2="26" y2="127"/>
+                <line class="dim" x1="165.2" y1="117" x2="165.2" y2="127"/>
+                <text class="dimtxt" x="95.6" y="141" text-anchor="middle">&#216; 11.6 mm</text>
+                <!-- height dimension -->
+                <line class="dim" x1="167" y1="39.2" x2="182" y2="39.2"/>
+                <line class="dim" x1="167" y1="104" x2="182" y2="104"/>
+                <line class="dim" x1="176" y1="39.2" x2="176" y2="104"/>
+                <line class="dim" x1="171" y1="39.2" x2="181" y2="39.2"/>
+                <line class="dim" x1="171" y1="104" x2="181" y2="104"/>
+                <text class="dimtxt" x="187" y="75">5.4 mm</text>
+              </svg>
+
+              <svg width="210" height="30" viewBox="0 0 210 30" role="img"
+                   aria-label="Scale bar, sixteen millimeters at twelve pixels per millimeter" style="margin-top:10px">
+                <line class="dim" x1="6" y1="6" x2="198" y2="6"/>
+                <line class="dim" x1="6" y1="6" x2="6" y2="16"/>
+                <line class="dim" x1="18" y1="6" x2="18" y2="11"/>
+                <line class="dim" x1="30" y1="6" x2="30" y2="11"/>
+                <line class="dim" x1="42" y1="6" x2="42" y2="11"/>
+                <line class="dim" x1="54" y1="6" x2="54" y2="11"/>
+                <line class="dim" x1="66" y1="6" x2="66" y2="16"/>
+                <line class="dim" x1="78" y1="6" x2="78" y2="11"/>
+                <line class="dim" x1="90" y1="6" x2="90" y2="11"/>
+                <line class="dim" x1="102" y1="6" x2="102" y2="11"/>
+                <line class="dim" x1="114" y1="6" x2="114" y2="11"/>
+                <line class="dim" x1="126" y1="6" x2="126" y2="16"/>
+                <line class="dim" x1="138" y1="6" x2="138" y2="11"/>
+                <line class="dim" x1="150" y1="6" x2="150" y2="11"/>
+                <line class="dim" x1="162" y1="6" x2="162" y2="11"/>
+                <line class="dim" x1="174" y1="6" x2="174" y2="11"/>
+                <line class="dim" x1="186" y1="6" x2="186" y2="16"/>
+                <line class="dim" x1="198" y1="6" x2="198" y2="11"/>
+                <text class="rultxt" x="6" y="27" text-anchor="middle">0</text>
+                <text class="rultxt" x="66" y="27" text-anchor="middle">5</text>
+                <text class="rultxt" x="126" y="27" text-anchor="middle">10</text>
+                <text class="rultxt" x="186" y="27" text-anchor="middle">15</text>
+              </svg>
+            </div>
+          </div>
+          <dl class="tblock">
+            <div><dt>Item</dt><dd>LR44</dd></div>
+            <div><dt>Shell</dt><dd>11.6 &times; 5.4 mm</dd></div>
+            <div><dt>View</dt><dd>Side elevation</dd></div>
+            <div><dt>Scale</dt><dd>12 px = 1 mm</dd></div>
+            <div><dt>Drawn from</dt><dd>Shell figures</dd></div>
+            <div><dt>Rev</dt><dd>2026.09</dd></div>
+          </dl>
+          </div>
+          <p class="hint">Drawing generated from the two shell figures &middot; never rescaled to fit a column</p>
+        </div>
+        <p class="note">Cap positive, can negative, crimp line where the two meet. Height is measured
+          with the cap seated, which is the number the compartment cares about.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="spec">
+      <h2 class="sec__h"><span class="sec__no">2.0</span> Specification</h2>
+      <div class="sec__body">
+        <div class="panel">
+          <div class="scroller">
+            <table class="tbl tbl--spec">
+              <colgroup><col style="width:11rem"><col style="width:8rem"><col></colgroup>
+              <thead>
+                <tr><th scope="col">Parameter</th><th scope="col" class="gr">Value</th><th scope="col" class="gr">Note</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">IEC designation</th><td class="gr">LR1154</td><td class="gr">L = alkaline, 11.5 mm class, 5.4 mm tall</td></tr>
+                <tr><th scope="row">Chemistry</th><td class="gr">Alkaline MnO<sub>2</sub></td><td class="gr">Zinc anode, manganese dioxide cathode</td></tr>
+                <tr><th scope="row">Nominal voltage</th><td class="gr">1.50 V</td><td class="gr">Sags steadily under load, unlike silver oxide</td></tr>
+                <tr><th scope="row">Diameter</th><td class="gr">11.6 mm</td><td class="gr">Across the can, the widest point</td></tr>
+                <tr><th scope="row">Height</th><td class="gr">5.4 mm</td><td class="gr">Cap seated; 1.2 mm taller than the 4.2 mm shell</td></tr>
+                <tr><th scope="row">Capacity</th><td class="gr">150 mA&middot;h</td><td class="gr">Typical, light continuous load, room temperature</td></tr>
+                <tr><th scope="row">Shell population</th><td class="gr">13 items</td><td class="gr">Three chemistries share this envelope</td></tr>
+                <tr><th scope="row">State</th><td class="gr">In production</td><td class="gr">Sold as LR44, A76 and AG13 by different makers</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="family">
+      <h2 class="sec__h"><span class="sec__no">3.0</span> Shell family
+        <span class="sec__sub">one scale &middot; 7 px = 1 mm &middot; one floor</span></h2>
+      <div class="sec__body">
+        <div class="panel">
+          <p class="panel__h">Everything that shares this envelope, and one cell that does not</p>
+          <div class="scroller">
+            <div class="strip">
+
+              <div class="cellcard cellcard--this">
+                <svg width="87.2" height="43.8" viewBox="0 0 87.2 43.8" role="img" aria-label="LR44, 11.6 by 5.4 millimeters, in production">
+                  <rect class="sil__body" x="3" y="3" width="81.2" height="37.8" rx="6.5"/>
+                  <line class="sil__seam" x1="3" y1="14.3" x2="84.2" y2="14.3"/>
+                  <line class="sil__seam" x1="10.3" y1="3" x2="10.3" y2="14.3"/>
+                  <line class="sil__seam" x1="76.9" y1="3" x2="76.9" y2="14.3"/>
+                  <text class="sil__pol" x="43.6" y="12" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">LR44 <span class="thistag">This sheet</span></p>
+                <div class="vm" role="img" aria-label="1.50 volts on a 1.30 to 1.60 volt rail">
+                  <i class="vm__f" style="width:66.7%"></i>
+                </div>
+                <p class="cellcard__meta">1.50 V alkaline<br>11.6 &times; 5.4</p>
+                <p class="cellcard__state">In production</p>
+              </div>
+
+              <div class="cellcard">
+                <svg width="87.2" height="43.8" viewBox="0 0 87.2 43.8" role="img" aria-label="SR44, 11.6 by 5.4 millimeters, in production">
+                  <rect class="sil__body" x="3" y="3" width="81.2" height="37.8" rx="6.5"/>
+                  <line class="sil__seam" x1="3" y1="14.3" x2="84.2" y2="14.3"/>
+                  <line class="sil__seam" x1="10.3" y1="3" x2="10.3" y2="14.3"/>
+                  <line class="sil__seam" x1="76.9" y1="3" x2="76.9" y2="14.3"/>
+                  <text class="sil__pol" x="43.6" y="12" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">SR44</p>
+                <div class="vm" role="img" aria-label="1.55 volts on a 1.30 to 1.60 volt rail">
+                  <i class="vm__f" style="width:83.3%"></i>
+                </div>
+                <p class="cellcard__meta">1.55 V silver<br>11.6 &times; 5.4</p>
+                <p class="cellcard__state">In production</p>
+              </div>
+
+              <div class="cellcard">
+                <svg width="87.2" height="43.8" viewBox="0 0 87.2 43.8" role="img" aria-label="MR44 mercury cell, 11.6 by 5.4 millimeters, discontinued">
+                  <rect class="sil__body--off" x="3" y="3" width="81.2" height="37.8" rx="6.5"/>
+                  <line class="sil__seam--off" x1="3" y1="14.3" x2="84.2" y2="14.3"/>
+                  <line class="sil__seam--off" x1="10.3" y1="3" x2="10.3" y2="14.3"/>
+                  <line class="sil__seam--off" x1="76.9" y1="3" x2="76.9" y2="14.3"/>
+                  <text class="sil__pol sil__pol--off" x="43.6" y="12" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">MR44</p>
+                <div class="vm" role="img" aria-label="1.35 volts on a 1.30 to 1.60 volt rail, outside tolerance">
+                  <i class="vm__f vm__f--warn" style="width:16.7%"></i>
+                </div>
+                <p class="cellcard__meta">1.35 V mercury<br>11.6 &times; 5.4</p>
+                <p class="cellcard__state">Discontinued</p>
+              </div>
+
+              <div class="cellcard">
+                <svg width="87.2" height="43.8" viewBox="0 0 87.2 43.8" role="img" aria-label="303, 11.6 by 5.4 millimeters, discontinued">
+                  <rect class="sil__body--off" x="3" y="3" width="81.2" height="37.8" rx="6.5"/>
+                  <line class="sil__seam--off" x1="3" y1="14.3" x2="84.2" y2="14.3"/>
+                  <line class="sil__seam--off" x1="10.3" y1="3" x2="10.3" y2="14.3"/>
+                  <line class="sil__seam--off" x1="76.9" y1="3" x2="76.9" y2="14.3"/>
+                  <text class="sil__pol sil__pol--off" x="43.6" y="12" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">303</p>
+                <div class="vm" role="img" aria-label="1.55 volts on a 1.30 to 1.60 volt rail">
+                  <i class="vm__f" style="width:83.3%"></i>
+                </div>
+                <p class="cellcard__meta">1.55 V silver<br>11.6 &times; 5.4</p>
+                <p class="cellcard__state">Discontinued</p>
+              </div>
+
+              <div class="cellcard">
+                <svg width="87.2" height="35.4" viewBox="0 0 87.2 35.4" role="img" aria-label="LR43, 11.6 by 4.2 millimeters, discontinued">
+                  <rect class="sil__body--off" x="3" y="3" width="81.2" height="29.4" rx="6.4"/>
+                  <line class="sil__seam--off" x1="3" y1="11.8" x2="84.2" y2="11.8"/>
+                  <line class="sil__seam--off" x1="10.3" y1="3" x2="10.3" y2="11.8"/>
+                  <line class="sil__seam--off" x1="76.9" y1="3" x2="76.9" y2="11.8"/>
+                  <text class="sil__pol sil__pol--off" x="43.6" y="11" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">LR43</p>
+                <div class="vm" role="img" aria-label="1.50 volts on a 1.30 to 1.60 volt rail">
+                  <i class="vm__f" style="width:66.7%"></i>
+                </div>
+                <p class="cellcard__meta">1.50 V alkaline<br>11.6 &times; 4.2</p>
+                <p class="cellcard__state">Discontinued</p>
+              </div>
+
+              <div class="cellcard">
+                <svg width="87.2" height="35.4" viewBox="0 0 87.2 35.4" role="img" aria-label="SR43, 11.6 by 4.2 millimeters, discontinued">
+                  <rect class="sil__body--off" x="3" y="3" width="81.2" height="29.4" rx="6.4"/>
+                  <line class="sil__seam--off" x1="3" y1="11.8" x2="84.2" y2="11.8"/>
+                  <line class="sil__seam--off" x1="10.3" y1="3" x2="10.3" y2="11.8"/>
+                  <line class="sil__seam--off" x1="76.9" y1="3" x2="76.9" y2="11.8"/>
+                  <text class="sil__pol sil__pol--off" x="43.6" y="11" text-anchor="middle">+</text>
+                </svg>
+                <p class="cellcard__code">SR43</p>
+                <div class="vm" role="img" aria-label="1.55 volts on a 1.30 to 1.60 volt rail">
+                  <i class="vm__f" style="width:83.3%"></i>
+                </div>
+                <p class="cellcard__meta">1.55 V silver<br>11.6 &times; 4.2</p>
+                <p class="cellcard__state">Discontinued</p>
+              </div>
+
+              <div class="alien">
+                <div class="cellcard">
+                  <svg width="146" height="28.4" viewBox="0 0 146 28.4" role="img" aria-label="CR2032, 20.0 by 3.2 millimeters, a different shell">
+                    <rect class="sil__body" x="3" y="3" width="140" height="22.4" rx="4.9"/>
+                    <line class="sil__seam" x1="3" y1="9.7" x2="143" y2="9.7"/>
+                    <line class="sil__seam" x1="15.6" y1="3" x2="15.6" y2="9.7"/>
+                    <line class="sil__seam" x1="130.4" y1="3" x2="130.4" y2="9.7"/>
+                    <text class="sil__pol" x="73" y="8.6" text-anchor="middle">+</text>
+                  </svg>
+                  <p class="cellcard__code">CR2032 <span class="warnpill">Other shell</span></p>
+                  <div class="vm" role="img" aria-label="3.00 volts, off the 1.30 to 1.60 volt rail">
+                    <i class="vm__f vm__f--warn vm__f--off" style="width:100%"></i>
+                  </div>
+                  <p class="cellcard__meta">3.00 V lithium<br>20.0 &times; 3.2</p>
+                  <p class="cellcard__state">In production</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <p class="hint">Four cells at 11.6 &times; 5.4 &middot; two at 11.6 &times; 4.2 &middot; CR2032 is 8.4 mm wider and belongs to nothing here</p>
+        </div>
+
+        <div class="slot slot--mrec"><span>Advertisement</span></div>
+      </div>
+    </section>
+
+    <section class="sec" id="volts">
+      <h2 class="sec__h"><span class="sec__no">4.0</span> Voltage
+        <span class="sec__sub">deviation from LR44 &middot; one tick = 50 mV</span></h2>
+      <div class="sec__body">
+        <div class="panel">
+          <div class="scroller">
+            <div style="min-width:20rem">
+              <div class="dv dv--head">
+                <span class="dv__code">Code</span>
+                <span class="dv__volt">Nominal</span>
+                <span class="dv__rail"><span>&minus;200 mV</span><span>+200 mV</span></span>
+                <span class="dv__delta">&#916;</span>
+              </div>
+
+              <div class="dv">
+                <span class="dv__code">MR44</span>
+                <span class="dv__volt">1.35 V</span>
+                <span class="dv__rail">
+                  <span class="dv__side dv__side--neg"><i class="dv__bar dv__bar--warn" style="width:75%"></i></span>
+                  <span class="dv__zero"></span>
+                  <span class="dv__side dv__side--pos"></span>
+                </span>
+                <span class="dv__delta warn">&minus;150</span>
+                <span class="dv__note">The cell most meters of the mercury era were trimmed to. Put LR44 in that meter and every reading climbs.</span>
+              </div>
+
+              <div class="dv">
+                <span class="dv__code">LR44</span>
+                <span class="dv__volt">1.50 V</span>
+                <span class="dv__rail">
+                  <span class="dv__side dv__side--neg"></span>
+                  <span class="dv__zero"></span>
+                  <span class="dv__side dv__side--pos"></span>
+                </span>
+                <span class="dv__delta">0</span>
+                <span class="dv__note">This sheet. Zero by definition &mdash; the rail is drawn against it.</span>
+              </div>
+
+              <div class="dv">
+                <span class="dv__code">SR44</span>
+                <span class="dv__volt">1.55 V</span>
+                <span class="dv__rail">
+                  <span class="dv__side dv__side--neg"></span>
+                  <span class="dv__zero"></span>
+                  <span class="dv__side dv__side--pos"><i class="dv__bar" style="width:25%"></i></span>
+                </span>
+                <span class="dv__delta">+50</span>
+                <span class="dv__note">Same shell, 50 mV up, and flat to the end of its life. In a light meter or a caliper this is the better cell, not the compromise.</span>
+              </div>
+
+              <div class="dv">
+                <span class="dv__code">CR2032</span>
+                <span class="dv__volt">3.00 V</span>
+                <span class="dv__rail">
+                  <span class="dv__side dv__side--neg"></span>
+                  <span class="dv__zero"></span>
+                  <span class="dv__side dv__side--pos"><i class="dv__bar dv__bar--warn dv__bar--off" style="width:100%"></i></span>
+                </span>
+                <span class="dv__delta warn">+1500</span>
+                <span class="dv__note">Twice the voltage and a shell 8.4 mm wider. It cannot reach the contacts, and if it could it would not be a substitution.</span>
+              </div>
+            </div>
+          </div>
+          <p class="hint">Steel bar: within 50 mV, swap it. Orange bar: it fits and the reading moves.</p>
+        </div>
+        <p class="p" style="margin-top:calc(var(--u)*3)">Alkaline and silver oxide differ by 50 mV at
+          the start and by far more at the end: the alkaline cell slopes down as it drains, the
+          silver-oxide cell holds its voltage almost flat and then stops. A device that only has to
+          run &mdash; a toy, a small light &mdash; will not notice. A device that measures will.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="clearance">
+      <h2 class="sec__h"><span class="sec__no">5.0</span> Clearance
+        <span class="sec__sub">the miss that costs 1.2 mm</span></h2>
+      <div class="sec__body">
+        <div class="panel">
+          <p class="panel__h">Compartment built for a 4.2 mm cell &middot; 9 px = 1 mm</p>
+          <div class="scroller">
+            <div class="figure" style="min-width:310px">
+              <svg width="300" height="96" viewBox="0 0 300 96" role="img"
+                   aria-label="LR43 sits under the compartment lid; LR44 stands 1.2 millimeters above it">
+                <text class="overtxt" x="212" y="18" text-anchor="middle">+1.2 mm over the lid</text>
+                <line class="dim" x1="212" y1="22" x2="212" y2="27"/>
+                <line class="lid" x1="6" y1="38.2" x2="294" y2="38.2"/>
+                <text class="figtxt" x="6" y="34">LID 4.2 mm</text>
+
+                <rect class="sil__body" x="14" y="38.2" width="104.4" height="37.8" rx="8.3"/>
+                <line class="sil__seam" x1="14" y1="49.5" x2="118.4" y2="49.5"/>
+                <line class="sil__seam" x1="23.4" y1="38.2" x2="23.4" y2="49.5"/>
+                <line class="sil__seam" x1="109" y1="38.2" x2="109" y2="49.5"/>
+
+                <rect class="sil__body" x="160" y="27.4" width="104.4" height="48.6" rx="8.35"/>
+                <line class="sil__seam" x1="160" y1="42" x2="264.4" y2="42"/>
+                <line class="sil__seam" x1="169.4" y1="27.4" x2="169.4" y2="42"/>
+                <line class="sil__seam" x1="255" y1="27.4" x2="255" y2="42"/>
+                <path class="over" d="M160,38.2 V35.75 A8.35,8.35 0 0 1 168.35,27.4 H256.05 A8.35,8.35 0 0 1 264.4,35.75 V38.2 Z"/>
+
+                <line class="floor" x1="6" y1="76" x2="294" y2="76"/>
+                <text class="figtxt" x="66" y="91" text-anchor="middle">LR43 &middot; 4.2 mm</text>
+                <text class="figtxt" x="212" y="91" text-anchor="middle">LR44 &middot; 5.4 mm</text>
+              </svg>
+            </div>
+          </div>
+          <p class="hint">Same floor, same diameter, one lid. The orange band is the part that does not fit.</p>
+        </div>
+        <p class="p" style="margin-top:calc(var(--u)*3)">LR44 and LR43 share a diameter to the tenth
+          of a millimeter, which is exactly why the mistake is common: the cell drops in, sits
+          straight, makes contact. The lid is where it fails, and in a sealed case the lid is the
+          part that cracks.</p>
+
+        <div class="panel" style="margin-top:calc(var(--u)*3)">
+          <p class="panel__h">Neighboring shell 11.6 &times; 4.2 mm</p>
+          <div class="scroller">
+            <table class="tbl tbl--slim">
+              <colgroup><col style="width:8rem"><col style="width:8rem"><col><col><col></colgroup>
+              <thead>
+                <tr><th scope="col">Code</th><th scope="col">Also stamped</th>
+                    <th scope="col" class="gr">V</th><th scope="col" class="num gr">&#916; mm</th>
+                    <th scope="col" class="gr">State</th></tr>
+              </thead>
+              <tbody>
+                <tr class="off">
+                  <td class="code">LR43</td><td class="alias">186</td>
+                  <td class="gr">1.50</td><td class="num gr warn">&minus;1.2</td>
+                  <td class="gr state"><span class="repl">&#9656; LR1142</span> &middot; discontinued</td>
+                </tr>
+                <tr class="off">
+                  <td class="code">SR43</td><td class="alias">301</td>
+                  <td class="gr">1.55</td><td class="num gr warn">&minus;1.2</td>
+                  <td class="gr state"><span class="repl">&#9656; 386</span> &middot; discontinued</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint">&#916; mm is height against LR44. A shorter cell rattles and may lose contact; a taller one lifts the lid.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="replaces">
+      <h2 class="sec__h"><span class="sec__no">6.0</span> Codes that land here
+        <span class="sec__sub">discontinued &#9656; LR44</span></h2>
+      <div class="sec__body">
+        <div class="panel">
+          <div class="scroller">
+            <table class="tbl">
+              <colgroup><col style="width:8rem"><col style="width:9rem"><col><col><col><col></colgroup>
+              <thead>
+                <tr><th scope="col">Arriving code</th><th scope="col">Was</th>
+                    <th scope="col" class="num gr">&#916; mV</th><th scope="col" class="num">&#916; mm</th>
+                    <th scope="col" class="gr">Verdict</th><th scope="col" class="gr">Better choice</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="code">A76</td><td class="alias">Trade name</td>
+                    <td class="num gr">0</td><td class="num">0.0</td>
+                    <td class="gr state">Same cell</td><td class="gr">&mdash;</td></tr>
+                <tr><td class="code">AG13</td><td class="alias">Trade name</td>
+                    <td class="num gr">0</td><td class="num">0.0</td>
+                    <td class="gr state">Same cell</td><td class="gr">&mdash;</td></tr>
+                <tr class="off"><td class="code">MR44</td><td class="alias">Mercury, PX76</td>
+                    <td class="num gr warn">+150</td><td class="num">0.0</td>
+                    <td class="gr"><span class="warnpill">Fits, reads high</span></td>
+                    <td class="gr repl">&#9656; SR44</td></tr>
+                <tr class="off"><td class="code">303</td><td class="alias">Silver, retired code</td>
+                    <td class="num gr">+50</td><td class="num">0.0</td>
+                    <td class="gr state">Wrong chemistry for LR44</td>
+                    <td class="gr repl">&#9656; SR44</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint">&#916; against LR44 &middot; a positive &#916; mV means the device now sees more voltage than it was built for</p>
+        </div>
+
+        <p class="p" style="margin-top:calc(var(--u)*3)">If the instrument was designed around the
+          1.35 V mercury cell, no cell sold today is a true replacement. Silver oxide gets closest
+          because its discharge curve is nearly flat, the property the mercury cell was chosen for,
+          but it still starts 200 mV high. The honest options are a voltage-dropping adapter, a
+          zinc-air cell at about 1.4 V with a short shelf life, or recalibration. This sheet will not
+          pretend otherwise.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="method">
+      <h2 class="sec__h"><span class="sec__no">7.0</span> Method</h2>
+      <div class="sec__body">
+        <p class="p">Both drawings on this page come from the same two numbers as the table:
+          11.6 mm across, 5.4 mm tall. Nothing is illustrated by hand and nothing is resized to fill
+          a column &mdash; when a figure is wider than the screen, the figure scrolls and the
+          millimeters stay true.</p>
+        <p class="p">Voltage is nominal open-circuit voltage for the chemistry. Capacity is a typical
+          rating under a light continuous load at room temperature. Neither is a promise about the
+          cell in your hand, and both are printed after the dimensions because dimensions are the
+          only figures here that cannot be argued with.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="rail" aria-label="Reference">
+    <div class="rail__block">
+      <p class="rail__h">How to read this sheet</p>
+      <div class="leg">
+        <div class="leg__row">
+          <svg width="52.4" height="27.6" viewBox="0 0 52.4 27.6" aria-hidden="true">
+            <rect class="sil__body" x="3" y="3" width="46.4" height="21.6" rx="3.7"/>
+            <line class="sil__seam" x1="3" y1="9.5" x2="49.4" y2="9.5"/>
+          </svg>
+          <p class="leg__t"><b>Filled</b>still made</p>
+        </div>
+        <div class="leg__row">
+          <svg width="52.4" height="27.6" viewBox="0 0 52.4 27.6" aria-hidden="true">
+            <rect class="sil__body--off" x="3" y="3" width="46.4" height="21.6" rx="3.7"/>
+            <line class="sil__seam--off" x1="3" y1="9.5" x2="49.4" y2="9.5"/>
+          </svg>
+          <p class="leg__t"><b>Hollow</b>discontinued</p>
+        </div>
+        <div class="leg__row">
+          <span class="leg__bar"></span>
+          <p class="leg__t"><b>Steel bar</b>within 50 mV</p>
+        </div>
+        <div class="leg__row">
+          <span class="leg__bar leg__bar--warn"></span>
+          <p class="leg__t"><b>Orange bar</b>fits, reads wrong</p>
+        </div>
+        <div class="leg__row">
+          <span class="leg__arrow">&#9656;</span>
+          <p class="leg__t"><b>Wedge</b>buy this instead</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rail__block">
+      <p class="rail__h">Same shell</p>
+      <ul class="rail__list">
+        <li><a href="cell.html">SR44</a> <span class="mut">1.55 V</span></li>
+        <li><a href="cell.html">MR44</a> <span class="mut">1.35 V</span></li>
+        <li><a href="cell.html">303</a> <span class="mut">1.55 V</span></li>
+      </ul>
+    </div>
+
+    <div class="rail__block">
+      <p class="rail__h">Neighboring shell</p>
+      <ul class="rail__list">
+        <li><a href="cell.html">LR43</a> <span class="mut">4.2 mm</span></li>
+        <li><a href="cell.html">SR43</a> <span class="mut">4.2 mm</span></li>
+      </ul>
+    </div>
+
+    <div class="rail__block">
+      <div class="slot slot--sky"><span>Advertisement</span></div>
+    </div>
+  </aside>
+</div>
+
+<footer class="foot">
+  <div class="foot__in">
+    <div>
+      <p class="foot__h">BatteryCross</p>
+      <p class="foot__t">A cross-reference sheet for cells that are no longer made. Dimensions and
+        nominal voltages only &mdash; no cell is endorsed, and no substitution is safe until the
+        compartment has been measured.</p>
+    </div>
+    <div>
+      <p class="foot__h">Sheet</p>
+      <ul class="foot__list">
+        <li><a href="#scale">Silhouette</a></li>
+        <li><a href="#volts">Voltage</a></li>
+        <li><a href="#clearance">Clearance</a></li>
+        <li><a href="#method">Method</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="foot__h">Item</p>
+      <ul class="foot__list">
+        <li>LR44 &middot; LR1154</li>
+        <li>Shell 11.6 &times; 5.4</li>
+        <li>Rev 2026.09</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

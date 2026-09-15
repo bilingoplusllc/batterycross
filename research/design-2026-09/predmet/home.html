@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BatteryCross — what physically fits, and what the voltage does</title>
+<meta name="description" content="Cross-reference for button and coin cells. Every cell drawn to scale from its real dimensions, with the voltage difference shown before the text.">
+<style>
+/* ============================================================
+   BATTERYCROSS — direction "STAMPED"
+   One idea: the page is a lit bench, and every cell on it is a
+   real object drawn at a stated scale. Light comes from the
+   upper left, on every object and every panel, without exception.
+   Type is the marking on the can: a monospace stamp for anything
+   the object itself carries, a system sans for anything we say.
+   ============================================================ */
+
+:root{
+  color-scheme: light;
+
+  /* --- two voices, both from the system --- */
+  --stamp: ui-monospace,"SF Mono","SFMono-Regular","Cascadia Mono","Segoe UI Mono","Roboto Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+  --prose: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  /* --- the three drawing scales; every figure states its own --- */
+  --mm: 4.6px;     /* comparison figures                */
+  --mmm: 11px;   /* the thesis figure on the home page */
+  --mmh: 16px;   /* hero drawing (raised at 640px)     */
+
+  /* --- bench and plate --- */
+  --bench:#e7e9ed;
+  --sheet:#f7f8fa;
+  --sunk:#dfe3e8;
+  --plate-hi:#ffffff;
+  --plate-lo:#c6ccd3;
+  --plate-side:#d5dae0;
+
+  /* --- ink --- */
+  --ink:#14171c;
+  --ink-2:#4a515b;
+  --ink-3:#5f666f;
+  --rule:#ced3d9;
+  --edge:#4a515c;
+
+  /* --- materials --- */
+  --nickel-1:#eef1f5;
+  --nickel-2:#d0d6dd;
+  --nickel-3:#b3bbc4;
+  --nickel-4:#9aa3ad;
+  --shade:#5b636d;
+
+  /* --- voltage classes: one color per nominal voltage --- */
+  --v135:#6b3f86;   /* 1.35 V  mercury      */
+  --v15:#46484c;    /* 1.50 V  alkaline     */
+  --v155:#8a5b12;   /* 1.55 V  silver oxide */
+  --v30:#1e4f86;    /* 3.00 V  lithium      */
+
+  /* --- accents --- */
+  --brass:#8a5b12;
+  --brass-2:#b07f26;
+  --on-brass:#f7f8fa;
+  --rust:#a3301c;
+  --focus:#8a5b12;
+
+  /* --- ad slots --- */
+  --slot:#d8dce1;
+  --slot-2:#cfd4da;
+  --slot-ink:#4e555f;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bench:#0e1114;
+    --sheet:#181c21;
+    --sunk:#101418;
+    --plate-hi:#2e353d;
+    --plate-lo:#07090b;
+    --plate-side:#242a31;
+
+    --ink:#e8ebef;
+    --ink-2:#a9b1bb;
+    --ink-3:#98a0aa;
+    --rule:#2b3138;
+    --edge:#a2abb6;
+
+    --nickel-1:#4b525b;
+    --nickel-2:#3d434b;
+    --nickel-3:#333941;
+    --nickel-4:#2a2f36;
+    --shade:#000000;
+
+    --v135:#bb92d6;
+    --v15:#bcbfc5;
+    --v155:#dda945;
+    --v30:#7cb0e8;
+
+    --brass:#dda945;
+    --brass-2:#c8942f;
+    --on-brass:#171b20;
+    --rust:#f08063;
+    --focus:#dda945;
+
+    --slot:#20252b;
+    --slot-2:#252b31;
+    --slot-ink:#9aa2ac;
+  }
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bench);
+  color:var(--ink);
+  font:400 17px/1.62 var(--prose);
+  font-variant-numeric:tabular-nums;
+}
+.defs{display:block;width:0;height:0}
+a{color:var(--brass);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{margin:0}
+p{margin:0}
+ul{margin:0}
+
+/* ---------- page frame ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+.cols{
+  display:grid;
+  gap:34px;
+  grid-template-columns:minmax(0,var(--measure,560px));
+  justify-content:center;
+  padding:34px 0 56px;
+}
+@media (min-width:1020px){
+  .cols{grid-template-columns:minmax(0,560px) 300px;gap:44px;align-items:start}
+}
+.main{display:flex;flex-direction:column;gap:34px;min-width:0}
+.side{display:flex;flex-direction:column;gap:24px;min-width:0}
+
+/* ---------- lit plate: every surface catches the same light ---------- */
+.plate{
+  background:linear-gradient(166deg,var(--sheet) 0%,var(--sunk) 100%);
+  border:1px solid var(--plate-side);
+  border-top-color:var(--plate-hi);
+  border-bottom-color:var(--plate-lo);
+  border-radius:6px;
+  padding:clamp(16px,4vw,26px);
+  display:flex;flex-direction:column;gap:18px;
+  min-width:0;
+}
+
+/* ---------- masthead ---------- */
+.top{
+  border-top:3px solid var(--brass-2);
+  border-bottom:1px solid var(--plate-lo);
+  background:linear-gradient(180deg,var(--sheet),var(--sunk));
+}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding-top:12px;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brandmark{display:block;width:28px;height:28px}
+.brandname{font:700 17px/1 var(--stamp);letter-spacing:.19em}
+.nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-left:auto}
+.nav a{font:600 12px/1 var(--stamp);letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav a:hover{color:var(--ink);border-bottom-color:var(--brass-2)}
+
+/* ---------- headings ---------- */
+.h-sec{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.h-sec .num{font:700 13px/1 var(--stamp);letter-spacing:.16em;color:var(--brass)}
+h2{font:700 clamp(19px,4.4vw,25px)/1.18 var(--stamp);letter-spacing:.1em;text-transform:uppercase}
+h3{font:700 15px/1.3 var(--stamp);letter-spacing:.11em;text-transform:uppercase;color:var(--ink)}
+.lede{font-size:19px;line-height:1.55;color:var(--ink-2)}
+.eyebrow{font:600 12px/1.45 var(--stamp);letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
+.small{font-size:14px;line-height:1.55;color:var(--ink-2)}
+.tiny{font:600 11px/1.4 var(--stamp);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- hero ---------- */
+h1{font:700 clamp(27px,6.6vw,42px)/1.1 var(--stamp);letter-spacing:.02em;text-transform:uppercase}
+h1 .soft{color:var(--brass)}
+.finder{display:flex;flex-direction:column;gap:9px}
+.finder-l{font:600 12px/1 var(--stamp);letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2)}
+.finder-row{display:flex;flex-wrap:wrap;gap:10px}
+.finder-i{
+  flex:1 1 210px;min-width:0;
+  font:700 19px/1 var(--stamp);letter-spacing:.1em;
+  color:var(--ink);
+  background:var(--sunk);
+  border:1px solid var(--plate-lo);
+  border-top-color:var(--edge);
+  border-radius:999px;
+  padding:14px 20px;
+  box-shadow:inset 0 2px 3px rgba(0,0,0,.09);
+}
+.finder-i::placeholder{color:var(--ink-3);font-weight:400;letter-spacing:.06em}
+.finder-b{
+  font:700 13px/1 var(--stamp);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--on-brass);background:var(--brass);
+  border:1px solid var(--brass);border-radius:999px;
+  padding:15px 22px;cursor:pointer;
+}
+.finder-b:hover{background:var(--brass-2);border-color:var(--brass-2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}
+.chip{
+  display:inline-block;
+  font:700 13px/1 var(--stamp);letter-spacing:.1em;
+  border:1px solid var(--edge);border-radius:999px;
+  padding:7px 14px;color:var(--ink);text-decoration:none;
+  background:var(--sheet);
+}
+.chip:hover{border-color:var(--brass);color:var(--brass)}
+
+/* ---------- the drawings ---------- */
+.cellsvg{display:block;--sw:0.2;--dash:0.7 0.5;
+  width:calc(var(--w) * var(--mm));height:calc(8 * var(--mm))}
+.midsvg{display:block;--sw:0.12;--dash:0.5 0.36;
+  width:calc(var(--w) * var(--mmm));height:calc(8 * var(--mmm))}
+
+.can{fill:url(#gCan)}
+.cap{fill:url(#gCap)}
+.spec{fill:url(#gSpec)}
+.shade{fill:url(#gShade)}
+.contour{fill:none;stroke:var(--edge);stroke-width:var(--sw)}
+.floor,.wall{fill:none;stroke:var(--edge);stroke-width:var(--sw)}
+.lid{fill:none;stroke:var(--edge);stroke-width:var(--sw);stroke-dasharray:var(--dash)}
+.dimline{fill:none;stroke:var(--ink-3);stroke-width:var(--sw)}
+.clash{fill:none;stroke:var(--rust);stroke-width:calc(var(--sw) * 2.4);stroke-linecap:round}
+.wall.bad{stroke:var(--rust);stroke-width:calc(var(--sw) * 2)}
+
+/* the collar is a real part: it scales with the object, in millimeters */
+.collar{fill:none;stroke-width:0.4;stroke:var(--edge)}
+.v135 .collar{stroke:var(--v135)}
+.v15  .collar{stroke:var(--v15)}
+.v155 .collar{stroke:var(--v155)}
+.v30  .collar{stroke:var(--v30)}
+
+/* out of production: hollow, unlit, no shadow, broken collar */
+.ghost .can{fill:url(#pHatch)}
+.ghost .collar{stroke-dasharray:var(--dash)}
+
+/* ---------- scale bar: every figure carries one ---------- */
+.scalebar{display:flex;align-items:center;gap:9px;font:600 11px/1 var(--stamp);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.scalebar i{display:block;height:7px;border:1px solid var(--edge);border-top:none;width:calc(5 * var(--mm))}
+.scalebar.mid i{width:calc(5 * var(--mmm))}
+
+/* ---------- family row ---------- */
+.family{display:flex;gap:6px;align-items:flex-start;overflow-x:auto;padding-bottom:10px}
+.cf{margin:0;display:flex;flex-direction:column;gap:7px;flex:0 0 auto;
+    width:calc(var(--w,13.6) * var(--mm) + 4px);min-width:72px;
+    border-bottom:2px solid transparent;padding-bottom:8px}
+.cf.is-here{border-bottom-color:var(--brass)}
+.cf svg{margin-inline:auto}
+.cf figcaption{display:flex;flex-direction:column;gap:3px}
+.cf-code{font:700 14px/1 var(--stamp);letter-spacing:.08em}
+.cf-v{font:600 12px/1 var(--stamp);letter-spacing:.07em}
+.cf-v.v135{color:var(--v135)} .cf-v.v15{color:var(--v15)}
+.cf-v.v155{color:var(--v155)} .cf-v.v30{color:var(--v30)}
+.cf-fit{font-size:12px;line-height:1.35;color:var(--ink-2)}
+.cf-st{font:600 10px/1.3 var(--stamp);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.cf-st.off{color:var(--rust)}
+
+/* ---------- thesis figure ---------- */
+.thesis{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.tf{margin:0;display:flex;flex-direction:column;gap:8px;flex:0 0 auto}
+.tf figcaption{display:flex;flex-direction:column;gap:3px}
+
+/* ---------- legend ---------- */
+.legend{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.leg{display:flex;gap:12px;align-items:flex-start}
+.leg svg{flex:0 0 auto}
+.leg-t{display:flex;flex-direction:column;gap:3px;min-width:0}
+
+/* ---------- deviation rule ---------- */
+.dev{
+  display:grid;
+  grid-template-columns:8.6rem repeat(30,1fr) 16px 2.6rem 3.4rem;
+  align-items:center;
+  row-gap:9px;
+  font-size:13px;
+}
+.dev-h,.dev-t{font:600 11px/1 var(--stamp);letter-spacing:.1em;color:var(--ink-3);white-space:nowrap}
+.dev-t.c{justify-self:center}
+.dev-t.r{justify-self:end}
+.dev-l{padding-right:10px;line-height:1.25}
+.dev-l b{font:700 13px/1.2 var(--stamp);letter-spacing:.06em;display:block;color:var(--ink)}
+.dev-l .chem{font-size:11.5px;color:var(--ink-2)}
+.dag{font:700 10px/1 var(--stamp);letter-spacing:.13em;text-transform:uppercase;color:var(--rust)}
+.bar{display:block;height:13px;border-radius:999px}
+.bar.b135{background:var(--v135)}
+.bar.b155{background:var(--v155)}
+.bar.b30{background:var(--v30)}
+.dot{display:block;width:13px;height:13px;border-radius:999px;background:var(--v15);margin-left:-6px}
+.zl{display:block;height:30px;border-left:1px solid var(--edge)}
+.brk{display:block;height:22px;width:9px;justify-self:center;
+     border-left:1px solid var(--edge);border-right:1px solid var(--edge);transform:skewX(-20deg)}
+.dev-n{font:700 12px/1 var(--stamp);letter-spacing:.04em;justify-self:end;color:var(--ink)}
+.dev-n.warn{color:var(--rust)}
+@media (max-width:700px){
+  .dev{grid-template-columns:4.4rem repeat(30,1fr) 10px 2rem 2.8rem;font-size:12px}
+  .dev-l .chem{display:none}
+  .dev-l b{font-size:12px}
+}
+
+/* ---------- swap rows ---------- */
+.swaps{display:flex;flex-direction:column;gap:22px}
+.swap{display:grid;grid-template-columns:auto auto auto;gap:10px 14px;align-items:start;
+      padding-bottom:20px;border-bottom:1px solid var(--rule)}
+.swap.last{border-bottom:none;padding-bottom:0}
+.swap .cf{min-width:104px}
+.arrow{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:74px;padding-top:14px}
+.arrow svg{display:block;width:54px;height:14px}
+.arrow .lab{font:700 10px/1.3 var(--stamp);letter-spacing:.1em;text-transform:uppercase;text-align:center;color:var(--brass)}
+.arrow.bad .lab{color:var(--rust)}
+.swap-note{grid-column:1/-1;font-size:14px;line-height:1.55;color:var(--ink-2)}
+/* below 620px the swap row has to give back what it borrowed */
+@media (max-width:620px){
+  .swap{gap:8px}
+  .swap .cf{min-width:86px}
+  .arrow{min-width:52px;padding-top:10px}
+  .arrow svg{width:40px}
+}
+
+
+/* ---------- shell cards ---------- */
+.shells{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
+.shell{
+  background:linear-gradient(166deg,var(--sheet),var(--sunk));
+  border:1px solid var(--plate-side);border-top-color:var(--plate-hi);border-bottom-color:var(--plate-lo);
+  border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:9px;min-width:0;
+}
+.shell svg{margin-top:2px;max-width:100%}
+.shell-d{font:700 13px/1.2 var(--stamp);letter-spacing:.06em}
+.shell-c{font-size:12.5px;line-height:1.4;color:var(--ink-2)}
+.shell-c .off{color:var(--rust)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:600 11px/1.3 var(--stamp);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+td.k{font:600 13px/1.4 var(--stamp);letter-spacing:.05em;white-space:nowrap}
+
+/* ---------- ad slots: one element, no display:none anywhere ---------- */
+.slot{
+  width:min(728px,100%);aspect-ratio:728/90;
+  background:repeating-linear-gradient(135deg,var(--slot) 0 11px,var(--slot-2) 11px 22px);
+  border:1px dashed var(--edge);border-radius:6px;
+  display:grid;place-items:center;
+  color:var(--slot-ink);font:700 12px/1 var(--stamp);letter-spacing:.18em;text-transform:uppercase;
+}
+.slot::after{content:"Ad 728 × 90"}
+@media (max-width:759px){
+  .slot{width:336px;max-width:100%;aspect-ratio:336/280}
+  .slot::after{content:"Ad 336 × 280"}
+}
+.slot-side{width:300px;max-width:100%;aspect-ratio:300/600}
+.slot-side::after{content:"Ad 300 × 600"}
+.slot-note{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+
+/* ---------- side rail ---------- */
+.rail-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:0}
+.rail-list li{border-bottom:1px solid var(--rule)}
+.rail-list a{display:flex;justify-content:space-between;gap:12px;padding:9px 0;
+  font:700 13px/1.2 var(--stamp);letter-spacing:.07em;text-decoration:none;color:var(--ink)}
+.rail-list a:hover{color:var(--brass)}
+.rail-list .v{font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--ink-2)}
+
+/* ---------- footer ---------- */
+.foot{border-top:1px solid var(--plate-lo);background:linear-gradient(180deg,var(--sunk),var(--sheet))}
+.foot-in{display:flex;flex-wrap:wrap;gap:20px 40px;padding:26px 0 40px}
+.foot-col{display:flex;flex-direction:column;gap:8px;min-width:180px;flex:1 1 200px}
+.warnbox{border-left:3px solid var(--rust);padding:2px 0 2px 14px;font-size:14px;line-height:1.55;color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<!-- shared drawing stock: gradients and the hatch used by every figure -->
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="gCan" x1="0.12" y1="0" x2="0.66" y2="1">
+    <stop offset="0"    style="stop-color:var(--nickel-1)"/>
+    <stop offset="0.40" style="stop-color:var(--nickel-2)"/>
+    <stop offset="1"    style="stop-color:var(--nickel-3)"/>
+  </linearGradient>
+  <linearGradient id="gCap" x1="0" y1="0" x2="0.4" y2="1">
+    <stop offset="0" style="stop-color:var(--nickel-3)"/>
+    <stop offset="1" style="stop-color:var(--nickel-4)"/>
+  </linearGradient>
+  <linearGradient id="gSpec" x1="0" y1="0" x2="0.15" y2="1">
+    <stop offset="0" style="stop-color:var(--nickel-1);stop-opacity:.85"/>
+    <stop offset="0.55" style="stop-color:var(--nickel-1);stop-opacity:.22"/>
+    <stop offset="1" style="stop-color:var(--nickel-1);stop-opacity:0"/>
+  </linearGradient>
+  <radialGradient id="gFace" cx="0.34" cy="0.27" r="0.86">
+    <stop offset="0"    style="stop-color:var(--nickel-1)"/>
+    <stop offset="0.52" style="stop-color:var(--nickel-2)"/>
+    <stop offset="1"    style="stop-color:var(--nickel-4)"/>
+  </radialGradient>
+  <radialGradient id="gShade" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" style="stop-color:var(--shade);stop-opacity:.45"/>
+    <stop offset="1" style="stop-color:var(--shade);stop-opacity:0"/>
+  </radialGradient>
+  <pattern id="pHatch" width="1" height="1" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+    <path d="M0 0 V1" style="stroke:var(--edge);stroke-width:0.09;opacity:.6"/>
+  </pattern>
+</defs></svg>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="home.html">
+      <svg class="brandmark" viewBox="0 0 12 12" aria-hidden="true">
+        <circle cx="6" cy="6" r="5.6" fill="url(#gFace)"/>
+        <circle cx="6" cy="6" r="4.3" style="fill:none;stroke:var(--nickel-4);stroke-width:.3"/>
+        <path d="M6 3.6 V5.2 M5.2 4.4 H6.8" style="fill:none;stroke:var(--nickel-4);stroke-width:.5;stroke-linecap:round"/>
+        <circle cx="6" cy="6" r="5.6" style="fill:none;stroke:var(--edge);stroke-width:.5"/>
+      </svg>
+      <span class="brandname">BatteryCross</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#shells">Shells</a>
+      <a href="#voltage">Voltage</a>
+      <a href="#gone">Discontinued</a>
+      <a href="#method">Method</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap cols">
+<main class="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="plate">
+    <p class="eyebrow">416 cells indexed &middot; 277 of them out of production</p>
+    <h1>Read the code.<br>Get the cell that <span class="soft">actually</span> fits.</h1>
+    <p class="lede">Your cell is discontinued. This site tells you what physically goes into
+      the same socket &mdash; and what the difference in voltage will do once it is in there.
+      Those are two separate answers, and they disagree more often than people expect.</p>
+
+    <form class="finder" onsubmit="return false">
+      <label class="finder-l" for="q">Code stamped on the cell</label>
+      <div class="finder-row">
+        <input class="finder-i" id="q" type="search" autocomplete="off" spellcheck="false" placeholder="LR44 &middot; 357 &middot; PX625">
+        <button class="finder-b" type="submit">Cross-reference</button>
+      </div>
+    </form>
+
+    <ul class="chips">
+      <li><a class="chip" href="cell.html">LR44</a></li>
+      <li><a class="chip" href="cell.html">357</a></li>
+      <li><a class="chip" href="cell.html">PX625</a></li>
+      <li><a class="chip" href="cell.html">CR2032</a></li>
+      <li><a class="chip" href="cell.html">AG13</a></li>
+      <li><a class="chip" href="cell.html">675</a></li>
+    </ul>
+
+    <!-- the thesis, drawn: one shell, three voltages -->
+    <figure class="tf" style="margin:0;gap:14px">
+      <div class="thesis">
+        <figure class="tf">
+          <svg class="midsvg v135 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">PX675</span>
+            <span class="cf-v v135">1.35 V mercury</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+        <figure class="tf">
+          <svg class="midsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="spec" d="M1.55 1.5 H12.05 V3.25 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">LR44</span>
+            <span class="cf-v v15">1.50 V alkaline</span>
+          </figcaption>
+        </figure>
+        <figure class="tf">
+          <svg class="midsvg v155" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="spec" d="M1.55 1.5 H12.05 V3.25 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">SR44</span>
+            <span class="cf-v v155">1.55 V silver</span>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="scalebar mid"><i></i><span>5 mm</span></div>
+      <figcaption class="small">One can, 11.6 &times; 5.4 mm, drawn from real dimensions at one
+        scale. Three chemistries were built into it and all three drop into the same socket.
+        The colored line is the gasket, and on this site its color is the nominal voltage &mdash;
+        the only saturated color on an otherwise gray object. The 1.35 V one is hollow because
+        it is gone, which is exactly how people end up 0.15 V high.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 01 LEGEND ============ -->
+  <section class="plate" id="legend">
+    <div class="h-sec"><span class="num">01</span><h2>How to read a cell here</h2></div>
+    <p>Four marks carry everything. Learn them once and the rest of the site is a picture,
+      not a paragraph.</p>
+
+    <div class="legend">
+      <div class="leg">
+        <svg class="cellsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+          <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+          <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          <path class="spec" d="M1.55 1.5 H12.05 V3.2 H1.55 Z"/>
+          <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+          <path class="collar" d="M1.12 5.45 H12.48"/>
+          <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+        </svg>
+        <div class="leg-t">
+          <h3>Lit &mdash; in production</h3>
+          <p class="small">Solid metal, one highlight from the upper left, a shadow on the bench.
+            You can buy it today.</p>
+        </div>
+      </div>
+
+      <div class="leg">
+        <svg class="cellsvg v155 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+          <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          <path class="collar" d="M1.12 5.45 H12.48"/>
+          <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+        </svg>
+        <div class="leg-t">
+          <h3>Hollow &mdash; discontinued</h3>
+          <p class="small">No metal, no highlight, no shadow: the light does not land on it and
+            it does not sit on the bench. The gasket line is broken.</p>
+        </div>
+      </div>
+
+      <div class="leg">
+        <svg class="cellsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+          <rect class="can" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+          <path class="spec" d="M1.55 2.7 H12.05 V4 H1.55 Z"/>
+          <rect class="cap" x="1.55" y="5.6" width="10.5" height="1" rx="0.4"/>
+          <path class="collar" d="M1.12 5.55 H12.48"/>
+          <rect class="contour" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+          <path class="dimline" d="M6.8 1.35 V2.25 M6.35 1.35 H7.25 M6.35 2.25 H7.25"/>
+          <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+          <path class="lid" d="M0.45 1.2 H13.15"/>
+          <path class="floor" d="M0.15 6.6 H13.45"/>
+        </svg>
+        <div class="leg-t">
+          <h3>The socket</h3>
+          <p class="small">Two walls and a dashed lid line, drawn from the device the cell is
+            named for. Flush with all three means it fits. Daylight under the lid is marked.</p>
+        </div>
+      </div>
+
+      <div class="leg">
+        <svg class="cellsvg v30" style="--w:22" viewBox="0 0 22 8" aria-hidden="true">
+          <ellipse class="shade" cx="11" cy="6.78" rx="10.8" ry="0.4"/>
+          <rect class="can" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+          <path class="spec" d="M1.6 3.65 H20.4 V4.65 H1.6 Z"/>
+          <rect class="cap" x="1.6" y="5.75" width="18.8" height="0.85" rx="0.35"/>
+          <path class="collar" d="M1.12 5.7 H20.88"/>
+          <rect class="contour" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+          <path class="clash" d="M1 3.05 H5.2 M16.8 3.05 H21"/>
+          <path class="wall bad" d="M5.2 6.6 V1.1 M16.8 6.6 V1.1"/>
+          <path class="lid" d="M4.65 1.2 H17.35"/>
+          <path class="floor" d="M0.15 6.6 H21.85"/>
+        </svg>
+        <div class="leg-t">
+          <h3>The clash</h3>
+          <p class="small">Where the cell crosses a wall of the socket, the wall turns red and
+            the overhang is bracketed. Nothing about that is negotiable.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="scalebar"><i></i><span>5 mm &mdash; every figure on this page except the one above</span></div>
+  </section>
+
+  <!-- ============ 02 THE SHELL ============ -->
+  <section class="plate" id="shell">
+    <div class="h-sec"><span class="num">02</span><h2>The 11.6 &times; 5.4 mm shell</h2></div>
+    <p>Thirteen catalog cells share this can, and eight of them are gone. Every one of the
+      first three below drops into the same socket without a shim. They are not
+      interchangeable.</p>
+
+    <figure style="margin:0;display:flex;flex-direction:column;gap:12px">
+      <div class="family">
+
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="spec" d="M1.55 1.5 H12.05 V3.2 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+            <path class="lid" d="M0.45 1.2 H13.15"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">LR44</span>
+            <span class="cf-v v15">1.50 V</span>
+            <span class="cf-fit">Flush all round</span>
+          </figcaption>
+        </figure>
+
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v155" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="spec" d="M1.55 1.5 H12.05 V3.2 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+            <path class="lid" d="M0.45 1.2 H13.15"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">SR44</span>
+            <span class="cf-v v155">1.55 V</span>
+            <span class="cf-fit">Flush &middot; 0.05 V high</span>
+          </figcaption>
+        </figure>
+
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v155 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+            <path class="lid" d="M0.45 1.2 H13.15"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">303</span>
+            <span class="cf-v v155">1.55 V</span>
+            <span class="cf-fit">Flush &middot; use 357</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v15 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+            <path class="collar" d="M1.12 5.55 H12.48"/>
+            <rect class="contour" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+            <path class="dimline" d="M6.8 1.35 V2.25 M6.35 1.35 H7.25 M6.35 2.25 H7.25"/>
+            <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+            <path class="lid" d="M0.45 1.2 H13.15"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">LR43</span>
+            <span class="cf-v v15">1.50 V</span>
+            <span class="cf-fit">1.2 mm short</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v155 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+            <path class="collar" d="M1.12 5.55 H12.48"/>
+            <rect class="contour" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+            <path class="dimline" d="M6.8 1.35 V2.25 M6.35 1.35 H7.25 M6.35 2.25 H7.25"/>
+            <path class="wall" d="M1 6.6 V1.1 M12.6 6.6 V1.1"/>
+            <path class="lid" d="M0.45 1.2 H13.15"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">SR43</span>
+            <span class="cf-v v155">1.55 V</span>
+            <span class="cf-fit">1.2 mm short</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+
+        <figure class="cf" style="--w:22">
+          <svg class="cellsvg v30" style="--w:22" viewBox="0 0 22 8" aria-hidden="true">
+            <ellipse class="shade" cx="11" cy="6.78" rx="10.8" ry="0.4"/>
+            <rect class="can" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+            <path class="spec" d="M1.6 3.65 H20.4 V4.65 H1.6 Z"/>
+            <rect class="cap" x="1.6" y="5.75" width="18.8" height="0.85" rx="0.35"/>
+            <path class="collar" d="M1.12 5.7 H20.88"/>
+            <rect class="contour" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+            <path class="clash" d="M1 3.05 H5.2 M16.8 3.05 H21"/>
+            <path class="wall bad" d="M5.2 6.6 V1.1 M16.8 6.6 V1.1"/>
+            <path class="lid" d="M4.65 1.2 H17.35"/>
+            <path class="floor" d="M0.15 6.6 H21.85"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">CR2032</span>
+            <span class="cf-v v30">3.00 V</span>
+            <span class="cf-fit">8.4 mm too wide</span>
+          </figcaption>
+        </figure>
+
+      </div>
+      <div class="scalebar"><i></i><span>5 mm &mdash; one scale for all six</span></div>
+      <figcaption class="small">The three tall cells are the same object to a socket. The two
+        short ones enter the bore but leave 1.2 mm under the lid, so a spring-loaded contact may
+        or may not reach. CR2032 is here to be excluded: it is 8.4 mm wider than the bore, and
+        no amount of force changes that.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 03 VOLTAGE ============ -->
+  <section class="plate" id="voltage">
+    <div class="h-sec"><span class="num">03</span><h2>Fits, and fits electrically</h2></div>
+    <p>A socket built for 1.50 V physically accepts every cell in that shell. What changes is
+      how far the cell sits from the voltage the device was calibrated against. The bar below is
+      that distance, drawn from zero, in volts. The last row is a different shell entirely; it is
+      here because it is the code people bring most often.</p>
+
+    <figure style="margin:0;display:flex;flex-direction:column;gap:14px">
+      <div class="dev">
+        <span class="dev-h"  style="grid-row:1;grid-column:1">Against 1.50 V</span>
+        <span class="dev-t"  style="grid-row:1;grid-column:2/4">&minus;0.20</span>
+        <span class="dev-t c" style="grid-row:1;grid-column:10/14">&minus;0.10</span>
+        <span class="dev-t c" style="grid-row:1;grid-column:20/24">0.00</span>
+        <span class="dev-t r" style="grid-row:1;grid-column:30/32">+0.10</span>
+        <span class="dev-t r" style="grid-row:1;grid-column:33/35">volts</span>
+
+        <span class="dev-l" style="grid-row:2;grid-column:1"><b>PX675 <span class="dag">gone</span></b><span class="chem">mercury 1.35 V</span></span>
+        <i class="bar b135" style="grid-row:2;grid-column:7/22"></i>
+        <i class="zl" style="grid-row:2;grid-column:22"></i>
+        <span class="dev-n warn" style="grid-row:2;grid-column:34/35">&minus;0.15</span>
+
+        <span class="dev-l" style="grid-row:3;grid-column:1"><b>LR44</b><span class="chem">alkaline 1.50 V</span></span>
+        <i class="dot" style="grid-row:3;grid-column:22"></i>
+        <i class="zl" style="grid-row:3;grid-column:22"></i>
+        <span class="dev-n" style="grid-row:3;grid-column:34/35">0.00</span>
+
+        <span class="dev-l" style="grid-row:4;grid-column:1"><b>SR44</b><span class="chem">silver 1.55 V</span></span>
+        <i class="zl" style="grid-row:4;grid-column:22"></i>
+        <i class="bar b155" style="grid-row:4;grid-column:22/27"></i>
+        <span class="dev-n" style="grid-row:4;grid-column:34/35">+0.05</span>
+
+        <span class="dev-l" style="grid-row:5;grid-column:1"><b>CR2032</b><span class="chem">lithium 3.00 V</span></span>
+        <i class="zl" style="grid-row:5;grid-column:22"></i>
+        <i class="brk" style="grid-row:5;grid-column:32/33"></i>
+        <i class="bar b30" style="grid-row:5;grid-column:33/34"></i>
+        <span class="dev-n warn" style="grid-row:5;grid-column:34/35">+1.50</span>
+      </div>
+      <figcaption class="small">The scale is broken after +0.10 V. Lithium is not a near miss,
+        it is a different world, and drawing it to the same scale would flatten everything else
+        into one line.</figcaption>
+    </figure>
+
+    <p>The near miss is the dangerous one. Silver oxide sits 0.05 V above alkaline and holds
+      that voltage almost flat until it dies; alkaline sags from the first hour. In a light
+      meter or a film camera calibrated for the 1.35 V mercury cell, the 1.50 V alkaline that
+      drops straight into the same socket reads about two thirds of a stop off when new, and
+      drifts the whole time it is in there.</p>
+
+    <div class="warnbox">Fitting is a fact about millimeters. Working is a fact about your
+      device. This site measures the first one and describes the second; it does not certify a
+      substitution. Check the manual before you trust a reading.</div>
+  </section>
+
+  <!-- ============ AD ============ -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+    <div class="slot" role="img" aria-label="Advertisement placeholder"></div>
+    <p class="slot-note">Slot rendered only when a creative is returned; otherwise the generator
+      emits no element at all. Nothing in this layout keys off <code>:last-child</code> or
+      sibling margins &mdash; every gap here comes from <code>gap</code>, so a missing slot
+      changes no spacing anywhere on the page.</p>
+  </div>
+
+  <!-- ============ 04 SHELLS ============ -->
+  <section class="plate" id="shells">
+    <div class="h-sec"><span class="num">04</span><h2>Shells by size</h2></div>
+    <p>Every cell in the catalog belongs to a can. Six of them hold most of the traffic; all
+      six are drawn below at the same 5 mm scale, so the cards can be compared to each other
+      and to everything above.</p>
+
+    <div class="shells">
+      <div class="shell">
+        <svg class="cellsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+          <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+          <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          <path class="spec" d="M1.55 1.5 H12.05 V3.2 H1.55 Z"/>
+          <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+          <path class="collar" d="M1.12 5.45 H12.48"/>
+          <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+          <path class="floor" d="M0.15 6.6 H13.45"/>
+        </svg>
+        <span class="shell-d">11.6 &times; 5.4</span>
+        <span class="shell-c">13 cells &middot; <span class="off">8 gone</span><br>LR44, SR44, 675</span>
+      </div>
+
+      <div class="shell">
+        <svg class="cellsvg v15" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+          <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+          <rect class="can" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+          <path class="spec" d="M1.55 2.7 H12.05 V4 H1.55 Z"/>
+          <rect class="cap" x="1.55" y="5.6" width="10.5" height="1" rx="0.4"/>
+          <path class="collar" d="M1.12 5.55 H12.48"/>
+          <rect class="contour" x="1" y="2.4" width="11.6" height="4.2" rx="0.55"/>
+          <path class="floor" d="M0.15 6.6 H13.45"/>
+        </svg>
+        <span class="shell-d">11.6 &times; 4.2</span>
+        <span class="shell-c">9 cells &middot; <span class="off">7 gone</span><br>LR43, SR43, 386</span>
+      </div>
+
+      <div class="shell">
+        <svg class="cellsvg v30" style="--w:22" viewBox="0 0 22 8" aria-hidden="true">
+          <ellipse class="shade" cx="11" cy="6.78" rx="10.8" ry="0.4"/>
+          <rect class="can" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+          <path class="spec" d="M1.6 3.65 H20.4 V4.65 H1.6 Z"/>
+          <rect class="cap" x="1.6" y="5.75" width="18.8" height="0.85" rx="0.35"/>
+          <path class="collar" d="M1.12 5.7 H20.88"/>
+          <rect class="contour" x="1" y="3.4" width="20" height="3.2" rx="0.5"/>
+          <path class="floor" d="M0.15 6.6 H21.85"/>
+        </svg>
+        <span class="shell-d">20.0 &times; 3.2</span>
+        <span class="shell-c">11 cells &middot; <span class="off">2 gone</span><br>CR2032, BR2032</span>
+      </div>
+
+      <div class="shell">
+        <svg class="cellsvg v135 ghost" style="--w:17.6" viewBox="0 0 17.6 8" aria-hidden="true">
+          <rect class="can" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+          <path class="collar" d="M1.12 5.4 H16.48"/>
+          <rect class="contour" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+          <path class="floor" d="M0.15 6.6 H17.45"/>
+        </svg>
+        <span class="shell-d">15.6 &times; 6.2</span>
+        <span class="shell-c">8 cells &middot; <span class="off">8 gone</span><br>PX625, MR9, 625A</span>
+      </div>
+
+      <div class="shell">
+        <svg class="cellsvg v15" style="--w:9.9" viewBox="0 0 9.9 8" aria-hidden="true">
+          <ellipse class="shade" cx="4.95" cy="6.78" rx="4.8" ry="0.4"/>
+          <rect class="can" x="1" y="3" width="7.9" height="3.6" rx="0.5"/>
+          <path class="spec" d="M1.5 3.25 H8.4 V4.4 H1.5 Z"/>
+          <rect class="cap" x="1.5" y="5.75" width="6.9" height="0.85" rx="0.35"/>
+          <path class="collar" d="M1.12 5.7 H8.78"/>
+          <rect class="contour" x="1" y="3" width="7.9" height="3.6" rx="0.5"/>
+          <path class="floor" d="M0.15 6.6 H9.75"/>
+        </svg>
+        <span class="shell-d">7.9 &times; 3.6</span>
+        <span class="shell-c">7 cells &middot; <span class="off">5 gone</span><br>LR41, SR41, 392</span>
+      </div>
+
+      <div class="shell">
+        <svg class="cellsvg v30" style="--w:25" viewBox="0 0 25 8" aria-hidden="true">
+          <ellipse class="shade" cx="12.5" cy="6.78" rx="12.3" ry="0.4"/>
+          <rect class="can" x="1" y="3.6" width="23" height="3" rx="0.5"/>
+          <path class="spec" d="M1.6 3.85 H21.4 V4.8 H1.6 Z"/>
+          <rect class="cap" x="1.6" y="5.8" width="21.8" height="0.8" rx="0.35"/>
+          <path class="collar" d="M1.12 5.75 H23.88"/>
+          <rect class="contour" x="1" y="3.6" width="23" height="3" rx="0.5"/>
+          <path class="floor" d="M0.15 6.6 H24.85"/>
+        </svg>
+        <span class="shell-d">23.0 &times; 3.0</span>
+        <span class="shell-c">6 cells &middot; <span class="off">1 gone</span><br>CR2330</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 DISCONTINUED ============ -->
+  <section class="plate" id="gone">
+    <div class="h-sec"><span class="num">05</span><h2>Gone, and what took the socket</h2></div>
+    <p>Two thirds of the catalog is out of production, most of it killed by the mercury bans of
+      the 1990s. A replacement is only a replacement if both drawings agree.</p>
+
+    <div class="swaps">
+
+      <div class="swap">
+        <figure class="cf" style="--w:17.6">
+          <svg class="cellsvg v135 ghost" style="--w:17.6" viewBox="0 0 17.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="collar" d="M1.12 5.4 H16.48"/>
+            <rect class="contour" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H17.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">PX625</span>
+            <span class="cf-v v135">1.35 V mercury</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+        <div class="arrow">
+          <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M0 4 H21 M17 1.4 L21 4 L17 6.6" style="fill:none;stroke:var(--brass);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round"/></svg>
+          <span class="lab">Voltage matched</span>
+        </div>
+        <figure class="cf" style="--w:17.6">
+          <svg class="cellsvg v135" style="--w:17.6" viewBox="0 0 17.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="8.8" cy="6.78" rx="8.6" ry="0.44"/>
+            <rect class="can" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="spec" d="M1.55 0.7 H16.05 V2.6 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.45" width="14.5" height="1.15" rx="0.45"/>
+            <path class="collar" d="M1.12 5.4 H16.48"/>
+            <rect class="contour" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H17.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">MRB625</span>
+            <span class="cf-v v135">1.35 V zinc-air</span>
+            <span class="cf-fit">Same can, same volts</span>
+          </figcaption>
+        </figure>
+        <p class="swap-note">Zinc-air holds 1.35 V flat, which is the property the meter was
+          calibrated against. It breathes: once the seal comes off, it runs down in months
+          whether you use it or not.</p>
+      </div>
+
+      <div class="swap">
+        <figure class="cf" style="--w:17.6">
+          <svg class="cellsvg v135 ghost" style="--w:17.6" viewBox="0 0 17.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="collar" d="M1.12 5.4 H16.48"/>
+            <rect class="contour" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H17.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">PX625</span>
+            <span class="cf-v v135">1.35 V mercury</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+        <div class="arrow bad">
+          <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M0 4 H21 M17 1.4 L21 4 L17 6.6" style="fill:none;stroke:var(--rust);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round"/></svg>
+          <span class="lab">Fits, reads high</span>
+        </div>
+        <figure class="cf" style="--w:17.6">
+          <svg class="cellsvg v15" style="--w:17.6" viewBox="0 0 17.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="8.8" cy="6.78" rx="8.6" ry="0.44"/>
+            <rect class="can" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="spec" d="M1.55 0.7 H16.05 V2.6 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.45" width="14.5" height="1.15" rx="0.45"/>
+            <path class="collar" d="M1.12 5.4 H16.48"/>
+            <rect class="contour" x="1" y="0.4" width="15.6" height="6.2" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H17.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">625A</span>
+            <span class="cf-v v15">1.50 V alkaline</span>
+            <span class="cf-fit">+0.15 V and falling</span>
+          </figcaption>
+        </figure>
+        <p class="swap-note">The drop-in everyone reaches for, and the reason this site exists.
+          Identical can, identical socket, 0.15 V too high on day one and a different number
+          every week after that.</p>
+      </div>
+
+      <div class="swap last">
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v155 ghost" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">303</span>
+            <span class="cf-v v155">1.55 V silver</span>
+            <span class="cf-st off">Out of production</span>
+          </figcaption>
+        </figure>
+        <div class="arrow">
+          <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M0 4 H21 M17 1.4 L21 4 L17 6.6" style="fill:none;stroke:var(--brass);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round"/></svg>
+          <span class="lab">Drop-in</span>
+        </div>
+        <figure class="cf" style="--w:13.6">
+          <svg class="cellsvg v155" style="--w:13.6" viewBox="0 0 13.6 8" aria-hidden="true">
+            <ellipse class="shade" cx="6.8" cy="6.78" rx="6.7" ry="0.44"/>
+            <rect class="can" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="spec" d="M1.55 1.5 H12.05 V3.2 H1.55 Z"/>
+            <rect class="cap" x="1.55" y="5.5" width="10.5" height="1.1" rx="0.45"/>
+            <path class="collar" d="M1.12 5.45 H12.48"/>
+            <rect class="contour" x="1" y="1.2" width="11.6" height="5.4" rx="0.6"/>
+            <path class="floor" d="M0.15 6.6 H13.45"/>
+          </svg>
+          <figcaption>
+            <span class="cf-code">357</span>
+            <span class="cf-v v155">1.55 V silver</span>
+            <span class="cf-fit">Same can, same volts</span>
+          </figcaption>
+        </figure>
+        <p class="swap-note">The easy case: same shell, same chemistry, same nominal voltage,
+          still made. Both drawings agree, so there is nothing further to say.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 06 METHOD ============ -->
+  <section class="plate" id="method">
+    <div class="h-sec"><span class="num">06</span><h2>Method</h2></div>
+    <div class="tablewrap">
+      <table>
+        <tbody>
+          <tr><td class="k">Drawings</td><td>Every silhouette is generated from the diameter and
+            height in the record, at a scale printed beside it. No drawing is adjusted for
+            appearance.</td></tr>
+          <tr><td class="k">Sockets</td><td>The socket outline is the bore and depth of the cell
+            the page is named for, not a manufacturer tolerance. Clearance is not drawn.</td></tr>
+          <tr><td class="k">Voltage</td><td>Nominal voltage as published. Deviation is measured
+            against the socket's own nominal, from zero, on a scale that is broken where it
+            says it is broken.</td></tr>
+          <tr><td class="k">Status</td><td>A cell counts as out of production when no listed
+            manufacturer catalogs it. 277 of 416 records currently qualify.</td></tr>
+          <tr><td class="k">Not included</td><td>Prices, sellers, and shelf life. This is a
+            dimensional and electrical cross-reference.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tiny">Catalog snapshot: 416 cells &middot; last rebuilt 2026-09-01</p>
+  </section>
+
+</main>
+
+<aside class="side">
+  <section class="plate">
+    <h3>Most looked up</h3>
+    <ul class="rail-list">
+      <li><a href="cell.html">LR44 <span class="v">1.50 V</span></a></li>
+      <li><a href="cell.html">CR2032 <span class="v">3.00 V</span></a></li>
+      <li><a href="cell.html">357 <span class="v">1.55 V</span></a></li>
+      <li><a href="cell.html">PX625 <span class="v">1.35 V</span></a></li>
+      <li><a href="cell.html">LR1130 <span class="v">1.50 V</span></a></li>
+      <li><a href="cell.html">675 <span class="v">1.40 V</span></a></li>
+    </ul>
+  </section>
+
+  <div class="slot slot-side" role="img" aria-label="Advertisement placeholder"></div>
+
+  <section class="plate">
+    <h3>About the data</h3>
+    <p class="small">416 cells, 277 of them out of production, 61 shells. Dimensions from
+      published manufacturer data sheets; equivalences are stated only where diameter, height
+      and terminal arrangement all match.</p>
+  </section>
+</aside>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="foot-col">
+      <span class="brandname">BatteryCross</span>
+      <p class="small">A dimensional cross-reference for button and coin cells.</p>
+    </div>
+    <div class="foot-col">
+      <p class="tiny">Sections</p>
+      <p class="small"><a href="#shells">Shells</a> &middot; <a href="#voltage">Voltage</a>
+        &middot; <a href="#gone">Discontinued</a> &middot; <a href="#method">Method</a></p>
+    </div>
+    <div class="foot-col">
+      <p class="tiny">Notice</p>
+      <p class="small">Not affiliated with any manufacturer. A cell that fits is not
+        automatically a safe substitute &mdash; check your device manual first.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
