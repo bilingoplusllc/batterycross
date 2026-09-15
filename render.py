@@ -3142,7 +3142,18 @@ def window_for(h2):
 
 # ЗАГОЛОВКИ ПЛОЩАДКИ. Оба живых сайта ветки их несут, этот не нёс ни одного.
 #
-# Развилка по frame-ancestors здесь не украшение: 145 страниц /embed/* сделаны
+# РАМКОЙ УПРАВЛЯЕТ X-Frame-Options, А НЕ frame-ancestors, и это вынужденно.
+# Cloudflare Pages ДОБАВЛЯЕТ заголовок правила пути к заголовку `/*`, а не
+# заменяет его: у /embed/* выходило ДВЕ политики CSP сразу, браузер применяет
+# их пересечение, и `frame-ancestors 'none'` из общего правила побеждал
+# `frame-ancestors *` из частного. Виджеты не встраивались никуда — проверено
+# на живой выкладке, curl отдавал два заголовка content-security-policy.
+#   Поэтому frame-ancestors не объявляется вовсе, рамку на сайте запрещает
+# X-Frame-Options: DENY, а у /embed/* он СНИМАЕТСЯ оператором `!` — это
+# документированный способ Pages убрать унаследованный заголовок, и он
+# работает (на виджете X-Frame-Options не приходит).
+#
+# Развилка здесь не украшение: 145 страниц /embed/* сделаны
 # затем, чтобы стоять в чужом iframe на форуме или ремонтном сайте, и страница
 # элемента прямо предлагает готовый сниппет. Глухой DENY на всё убил бы ровно
 # тот канал распространения, ради которого виджеты и написаны. Поэтому DENY
@@ -3180,14 +3191,13 @@ HEADERS = """/*
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   X-Frame-Options: DENY
-  Content-Security-Policy: %(csp)s; frame-ancestors 'none'
+  Content-Security-Policy: %(csp)s
 
 # Widgets exist to be framed. Framing is allowed here on purpose: these
 # documents carry no header, no navigation, no input and no third-party
 # request, so there is nothing in them to click but one link out.
 /embed/*
   ! X-Frame-Options
-  Content-Security-Policy: %(csp)s; frame-ancestors *
 
 # The dated snapshot carries its date in the filename, so what is served
 # at this address will never change.
