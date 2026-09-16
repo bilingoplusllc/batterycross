@@ -233,6 +233,14 @@ def g_no_external(files):
             elif r.startswith(ALLOWED_PREFIX) or r.startswith(
                     "https://%s" % DOMAIN):
                 continue
+            elif _analytics_src() and r == _analytics_src():
+                # ОДИН адрес, сверенный ЦЕЛИКОМ, а не по приставке. Приставка
+                # «https://www.googletagmanager.com» пустила бы с того же
+                # хоста что угодно, включая контейнер Tag Manager, который
+                # грузит дальше уже не нами выбранный код. Здесь равенство:
+                # ровно тот файл и ровно тот идентификатор, что объявлены в
+                # render.ANALYTICS_SRC.
+                continue
             else:
                 bad.append("%s: подресурс наружу %s" % (p, r[:60]))
         for m in re.finditer(r"<a\b([^>]*)>", t):
@@ -286,6 +294,23 @@ def g_no_external(files):
 SCRIPT_MAX = 3072
 
 
+def _analytics_src():
+    """Объявленный адрес загрузчика счётчика — или пусто, если счётчика нет.
+
+    Читается из render, а не набирается здесь: гейт, знающий адрес наизусть,
+    сверял бы код со своей же копией. Выключенный флаг обязан возвращать
+    пустоту, иначе исключение переживёт выключение счётчика молча.
+    """
+    import render as rd
+    return rd.ANALYTICS_SRC if rd.ANALYTICS else ""
+
+
+def _analytics_boot():
+    """Объявленный текст встроенного объявления согласия — или пусто."""
+    import render as rd
+    return rd.analytics_boot() if rd.ANALYTICS else ""
+
+
 def _is_data(attrs):
     """Инертный блок данных, а не код. Два вида: поиск страницы и структурные
     данные. Проверять «application/json in attrs» было НЕДОСТАТОЧНО —
@@ -306,6 +331,10 @@ def g_no_scripts(files):
     bad = []
     pages = _html(files)
     _sample(bad, len(pages), "страниц")
+    widgets = set(_embeds(files))
+    if _analytics_src() and not widgets:
+        bad.append("виджетов ноль — пустая выборка сняла бы со счётчика "
+                   "единственное место, где его быть не должно")
     for p, t in pages.items():
         tags = re.findall(r"<script([^>]*)>(.*?)</script>", t, re.S)
         # Блоки ДАННЫХ браузер не исполняет: это инертный текст, и считать его
@@ -317,6 +346,32 @@ def g_no_scripts(files):
         code = [x for x in tags if not _is_data(x[0])]
         plain = [x for x in data if "ld+json" not in x[0]]
         ld = [x for x in data if "ld+json" in x[0]]
+        # СЧЁТЧИК ПУЩЕН ПО ТОЖДЕСТВУ, А НЕ ПО СЧЁТУ. Поднять «не больше
+        # одного» до «не больше трёх» значило бы впустить ЛЮБЫЕ три скрипта.
+        # Вместо этого из набора вычитаются ровно два объявленных куска —
+        # загрузчик с объявленным адресом и объявленный текст согласия, — а
+        # правило «остался ровно один встроенный» остаётся прежним. Любой
+        # четвёртый, любой другой адрес и любая другая строка согласия
+        # краснеют так же, как краснели бы вчера.
+        # ВИДЖЕТ СЧЁТЧИКА НЕ НЕСЁТ, и это не поблажка, а правило: виджет
+        # уезжает на ЧУЖУЮ страницу, где уже стоит чужая аналитика, и наш
+        # счётчик считал бы чужие просмотры своими. Соседний гейт «виджеты
+        # остаются фрагментами» запрещает в них <script> вовсе, то есть
+        # обратную сторону этого правила держит он.
+        src_decl, boot_decl = _analytics_src(), _analytics_boot()
+        if p in widgets:
+            src_decl = ""
+        if src_decl:
+            loader = [x for x in code
+                      if ('src="%s"' % src_decl) in x[0] and not x[1].strip()]
+            boots = [x for x in code if x[1] == boot_decl]
+            if len(loader) != 1:
+                bad.append("%s: загрузчиков счётчика %d, а объявлен один"
+                           % (p, len(loader)))
+            if len(boots) != 1:
+                bad.append("%s: объявлений согласия %d, а объявлено одно"
+                           % (p, len(boots)))
+            code = [x for x in code if x not in loader and x not in boots]
         if len(code) > 1:
             bad.append("%s: исполняемых скриптов %d" % (p, len(code)))
         if len(plain) > 1:
@@ -548,6 +603,131 @@ def g_ad_disclosure_survives_the_network(files):
     return bad
 
 
+def _csp_blocks(headers):
+    """`_headers` — в блоки: путь и его заголовки. Разбор общий для гейта."""
+    out, path = [], None
+    for line in headers.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if not line[:1].isspace():
+            path = line.strip()
+            out.append((path, []))
+        elif out:
+            out[-1][1].append(line.strip())
+    return out
+
+
+def _csp_directives(value):
+    d = {}
+    for part in value.split(";"):
+        toks = part.split()
+        if toks:
+            d[toks[0]] = toks[1:]
+    return d
+
+
+def g_served_policy_lets_the_counter_through(files):
+    """ОТДАВАЕМАЯ политика пускает счётчик — и ровно его.
+
+    Гейт читает `_headers`, а не исходник, и до сегодняшнего дня ЭТОТ ФАЙЛ
+    НЕ ЧИТАЛ НИ ОДИН ГЕЙТ: конвейер проверял только «файл не пуст». Между
+    тем это самая последственная строка всей выкладки, и проверить её
+    местной сборкой нельзя — `python -m http.server` не читает `_headers`
+    вовсе, поэтому на своей машине счётчик работает ВСЕГДА и отказывает
+    только на площадке.
+
+    ЧЕГО ИМЕННО БОИМСЯ. Расширить `script-src` и забыть `connect-src` —
+    значит получить загруженный, исполняющийся, согласие уважающий счётчик,
+    который не отправляет НИЧЕГО: сборка зелёная, отданные байты совпадают
+    с собранными, отчёт пуст навсегда. Эта ферма платила за такое дважды.
+
+    ВТОРАЯ ПОЛИТИКА. Cloudflare Pages ДОБАВЛЯЕТ заголовок правила пути к
+    общему, а не заменяет его; две политики пересекаются, и это пересечение
+    уже снимало с сети все 145 виджетов. Значит политика обязана быть ровно
+    одна и ровно в `/*`.
+    """
+    import render as rd
+    bad = []
+    hd = files.get("_headers", "")
+    if not hd:
+        return ["_headers не отдан — проверять нечего, и это провал"]
+    blocks = _csp_blocks(hd)
+    _sample(bad, len(blocks), "правил пути в _headers")
+    carrying = [(p, h) for p, hs in blocks for h in hs
+                if h.lower().startswith("content-security-policy:")]
+    if len(carrying) != 1:
+        return bad + ["политик в _headers %d, а обязана быть ровно одна: две "
+                      "пересекаются, и пересечение запрещает больше каждой"
+                      % len(carrying)]
+    path, line = carrying[0]
+    if path != "/*":
+        bad.append("политика объявлена в правиле %s, а не в /*: правило пути "
+                   "ДОБАВЛЯЕТСЯ к общему, а не заменяет его" % path)
+    val = line.split(":", 1)[1].strip()
+    dirs = _csp_directives(val)
+    for name in ("default-src", "script-src", "style-src", "img-src",
+                 "connect-src", "object-src", "base-uri", "form-action"):
+        if name not in dirs:
+            bad.append("в политике нет директивы %s" % name)
+    for name, srcs in sorted(dirs.items()):
+        for s in srcs:
+            if s in ("*", "https:", "http:", "'unsafe-eval'",
+                     "'strict-dynamic'"):
+                bad.append("в %s стоит %s — это возвращает ровно то, ради "
+                           "чего политика и написана" % (name, s))
+        if name == "frame-ancestors":
+            bad.append("frame-ancestors вернулся в политику: рамкой правит "
+                       "X-Frame-Options, а вторая запись про рамки уже "
+                       "снимала с сети все виджеты")
+
+    if not rd.ANALYTICS:
+        if dirs.get("connect-src") != ["'none'"]:
+            bad.append("счётчика нет, а connect-src не 'none' — разрешение "
+                       "без потребителя")
+        return bad
+
+    # Три разрешения, каждое названо ЯВНО, а не оставлено на откат.
+    if rd.ANALYTICS_ORIGIN not in dirs.get("script-src", []):
+        bad.append("script-src не пускает %s — файл счётчика не загрузится"
+                   % rd.ANALYTICS_ORIGIN)
+    con = dirs.get("connect-src", [])
+    if con == ["'none'"]:
+        bad.append("connect-src = 'none' при включённом счётчике: он "
+                   "загрузится, исполнится, уважит согласие И НЕ ОТПРАВИТ "
+                   "НИЧЕГО — отчёт будет пуст навсегда")
+    for host in rd.ANALYTICS_COLLECT:
+        if host not in con:
+            bad.append("connect-src не пускает %s: gtag.js выбирает "
+                       "региональный приёмник во время работы, и список без "
+                       "подстановочного знака теряет часть мира молча" % host)
+    if rd.ANALYTICS_COLLECT[0] not in dirs.get("img-src", []):
+        bad.append("img-src не пускает %s — запасной способ отправки "
+                   "(картинкой, когда sendBeacon недоступен) закрыт"
+                   % rd.ANALYTICS_COLLECT[0])
+
+    # И обратная сторона: КАЖДЫЙ внешний скрипт отданных страниц обязан быть
+    # разрешён этой политикой, а его адрес — быть похож на настоящий.
+    pages = _html(files)
+    if not pages:
+        return bad + ["страниц ноль — пустая выборка это провал"]
+    seen = 0
+    for p, txt in sorted(pages.items()):
+        for src in re.findall(r'<script[^>]*\bsrc="([^"]*)"', txt):
+            seen += 1
+            host = "/".join(src.split("/", 3)[:3])
+            if host not in dirs.get("script-src", []):
+                bad.append("%s: скрипт с %s, а политика его не пускает"
+                           % (p, host))
+            if not re.match(r"^https://www\.googletagmanager\.com/gtag/js"
+                            r"\?id=G-[A-Z0-9]{10}$", src):
+                bad.append("%s: адрес счётчика не той формы: %s" % (p, src))
+    if not seen:
+        bad.append("внешних скриптов в сборке ноль при включённом счётчике — "
+                   "пустая выборка это провал")
+    _sample(bad, seen, "внешних скриптов, сверенных с политикой")
+    return bad
+
+
 def g_privacy_matches_markup(files):
     """Текст политики сверяется с тем, что РЕАЛЬНО грузят страницы, и в ОБЕ
     СТОРОНЫ.
@@ -591,6 +771,31 @@ def g_privacy_matches_markup(files):
 
     claims_none = "runs no analytics" in pv
     no_cookies = "sets no cookies" in pv
+
+    # ОБРАТНАЯ СТОРОНА. Пока счётчика не было, работала одна половина:
+    # «политика отрицает — разметка обязана молчать». В день подключения
+    # отрицание исчезает из текста, `claims_none` становится False, и
+    # ПОЛОВИНА ГЕЙТА ТИХО ОСТАЁТСЯ БЕЗ РАБОТЫ. Вторая половина спрашивает
+    # обратное: раз счётчик есть, политика обязана назвать ЕГО ИМЕНЕМ —
+    # «сторонняя служба» в правовом документе не называет никого.
+    import render as rd
+    if rd.ANALYTICS:
+        name = rd.THIRD_PARTIES[0][0] if rd.THIRD_PARTIES else ""
+        if not name:
+            bad.append("счётчик включён, а сторонних служб не объявлено ни "
+                       "одной — политике нечего называть")
+        elif name not in pv:
+            bad.append("счётчик включён, а политика не называет его: в тексте "
+                       "нет «%s»" % name)
+        if claims_none:
+            bad.append("счётчик включён, а политика по-прежнему отрицает "
+                       "аналитику")
+        if not rd.COOKIES:
+            bad.append("счётчик включён, а флаг кук выключен: GA4 ставит _ga "
+                       "из УДАЛЁННОГО файла, и ни один разбор встроенного "
+                       "кода этого не увидит")
+        if no_cookies:
+            bad.append("счётчик включён, а политика отрицает куки")
     for p, t in sorted(pages.items()):
         bodies = " ".join(b for _a, b in
                           re.findall(r"<script([^>]*)>(.*?)</script>", t, re.S))
@@ -5928,6 +6133,13 @@ def _gate_reach():
 # доказывает. Стоящая рядом строка — что именно она ломает.
 REFERENCE_STUBS = {
     ("cells", "_s"): lambda: (lambda row, key: "mercuric oxide"),
+    # Ложь выбрана по СМЫСЛУ гейта: он сверяет отданное объявление согласия
+    # с объявленным дословно. Подмена возвращает объявление, РАЗРЕШАЮЩЕЕ
+    # рекламные хранилища, — если гейт от этого не покраснеет, значит он
+    # сверяет строку с её же копией и пропустит настоящую подмену согласия.
+    ("render", "analytics_boot"): lambda: (
+        lambda: "window.dataLayer=window.dataLayer||[];"
+                "gtag('consent','default',{'ad_storage':'granted'});"),
     # Строка, объявляющая предметом РАМКУ: ровно та подмена сторон,
     # ради которой гейт строки и написан.
     ("cells", "pair_row"): lambda: (
@@ -6193,7 +6405,26 @@ REFERENCE_CONSTS = {
         "What a lithium coin is asked to hold",
         "What the datasheet does not say")),
     ("render", "FIND_TOL_MM"): ("pin", 1),
-    ("render", "THIRD_PARTIES"): ("pin", ()),
+    # Счётчик. Обе величины прибиты ЗДЕСЬ руками нарочно: адрес загрузчика
+    # несёт идентификатор ресурса GA4, и опечатка в нём даёт исправно
+    # загруженный счётчик, который отчитывается НИКУДА. Сверять его с самим
+    # собой бессмысленно, поэтому эталон набран отдельно и разойдётся с
+    # генератором громко.
+    ("render", "ANALYTICS"): ("pin", True),
+    ("render", "ANALYTICS_SRC"):
+        ("pin", "https://www.googletagmanager.com/gtag/js?id=G-FNMWBSPVZN"),
+    ("render", "COOKIES"): ("pin", True),
+    ("render", "ANALYTICS_ORIGIN"): ("pin", "https://www.googletagmanager.com"),
+    # Подстановочный знак прибит РУКАМИ, и это его главная защита: сузить
+    # список до www.google-analytics.com — самая правдоподобная «уборка»,
+    # какую можно сделать с этой строкой, и она оставила бы счётчик
+    # загруженным и немым для части мира.
+    ("render", "ANALYTICS_COLLECT"):
+        ("pin", ("https://*.google-analytics.com",
+                 "https://*.analytics.google.com")),
+    ("render", "THIRD_PARTIES"): ("pin", (
+        ("Google Analytics 4", "www.googletagmanager.com",
+         "counts page views", True),)),
     ("render", "FINDER"): ("why",
                            "гейт «поиск отвечает по габариту» ИСПОЛНЯЕТ этот "
                            "код поверх отданного указателя и сверяет ответ с "
@@ -6376,6 +6607,10 @@ NO_REFERENCE_GATES = {
     # эталонами в REFERENCE_CONSTS.
     "g_relations_computed",
     "g_declared_sets_match_pages",
+    # Гейт отдаваемой политики читает ВЕЛИЧИНЫ генератора (флаг, адрес
+    # загрузчика, список приёмников) и ни одной его ФУНКЦИИ: подменять у
+    # него нечего, а все четыре величины объявлены эталонами.
+    "g_served_policy_lets_the_counter_through",
     # Величины в прозе: ни одной ФУНКЦИИ генератора он не зовёт, и пробе
     # лживой подменой у него ловить нечего. Его эталоны — снимок с диска,
     # прибитая руками C.TRADE_MARKINGS и таблица известных ответов на
@@ -6416,7 +6651,7 @@ NO_REFERENCE_GATES = {
     "g_no_empty_ad_slot",
     "g_no_external",
     "g_no_placeholder_values",
-    "g_no_scripts",
+
     "g_no_self_links",
     "g_number_agrees_with_verb",
     "g_numbers_agree",
@@ -7044,6 +7279,14 @@ def _pair_no_pair(shape, cells, head, where):
 # названная и исчезнувшая — тоже, чтобы список не превращался в кладбище.
 SILENT_SKIPS = {
     ("_pair_shape", "len(want) != len(head)"),
+    # Ветка, выводящая из-под запрета на внешний подресурс РОВНО объявленный
+    # адрес счётчика. Названа потому, что снаружи «разрешено одному» и
+    # «правило не работает» выглядят одинаково.
+    ("g_no_external", "_analytics_src() and r == _analytics_src()"),
+    # Пустая строка и комментарий в _headers — не заголовок. Ветка названа
+    # потому, что разбор, тихо перестающий что-либо находить, зеленит гейт
+    # политики ровно так же, как её отсутствие.
+    ("_csp_blocks", 'not line.strip() or line.lstrip().startswith("#")'),
     # Ветки волны отношений. Каждая выводит запись снимка или страницу
     # из-под правила, и каждая названа.
     ("_rel_alkaline_silver", "v is None"),
@@ -7562,6 +7805,17 @@ PROSE_QUANTITIES = {
     ("render", "3.2", "across and 3.2 mm tall"):
         ("снимок", ("CR2032", "battery-height")),
     # --- факты вне снимка ---
+    ("render", "4", "counts page views with Google Analytics 4"):
+        ("мир", "это НОМЕР ВЕРСИИ в имени продукта Google, а не измеренная "
+                "величина: считать её не из чего, а написать «Google "
+                "Analytics» без четвёрки значило бы назвать другой продукт — "
+                "прежний Universal Analytics выключен в 2023 году"),
+    ("render", "two years", "expire two years after your last visit"):
+        ("мир", "срок жизни куки _ga по умолчанию у самого Google: он задан "
+                "не нами и в данных о батарейках его нет. Если Google его "
+                "изменит, это предложение станет ложным — и заметить это "
+                "можно только у Google, поэтому величина объявлена, а не "
+                "посчитана"),
     ("render", "1", "1] Energizer product data index"):
         ("мир", "номер источника в нумерованном списке страницы метода: "
                 "величина не физическая, а порядковая, и считать её не из "
@@ -8775,6 +9029,11 @@ GATES = [
     ("карта сайта совпадает с сайтом", g_sitemap),
     ("robots указывает карту", g_robots),
     ("политика совпадает с разметкой", g_privacy_matches_markup),
+    # Отдаваемые ЗАГОЛОВКИ — отдельный артефакт, и до сих пор его не читал
+    # ни один гейт: локальный сервер их не читает тоже, поэтому ошибка в
+    # них видна только на живой площадке.
+    ("отдаваемая политика пускает счётчик",
+     g_served_policy_lets_the_counter_through),
     ("ответ первым в каждом разделе", g_answer_first),
     ("нет близнецов по прозе", g_twins),
     ("чертёж не врёт масштабом", g_scale_honest),
@@ -8885,7 +9144,7 @@ GATES = [
      g_ad_disclosure_survives_the_network),
 ]
 
-GATE_COUNT = 93          # гейт, переставший запускаться, выглядит пройденным
+GATE_COUNT = 94          # гейт, переставший запускаться, выглядит пройденным
 
 
 def run(files, quiet=False):
@@ -10610,9 +10869,34 @@ def selftest():
              "<url><loc>https://batterycross.com/ghost/</loc></url></urlset>"))),
         ("robots указывает карту",
          lambda c: c.__setitem__("robots.txt", "User-agent: *\nAllow: /\n")),
+        # ПОЛОМКА ПЕРЕВЁРНУТА В ДЕНЬ ПОДКЛЮЧЕНИЯ СЧЁТЧИКА. Раньше она
+        # вставляла gtag на страницу и требовала красноты — но с настоящим
+        # счётчиком это больше не дефект, и гейт остался бы зелёным, то
+        # есть проба перестала бы что-либо доказывать. Теперь ломается
+        # ДРУГАЯ сторона: политика перестаёт называть счётчик, который
+        # сайт несёт.
         ("политика совпадает с разметкой",
-         lambda c: c.__setitem__(cell, c[cell].replace(
-             "</body>", "<script>gtag('config','X')</script></body>"))),
+         lambda c: c.__setitem__("privacy/index.html",
+                                 c["privacy/index.html"].replace(
+                                     "Google Analytics 4", "a counter"))),
+        # ТРИ ОТКАЗА ОТДАВАЕМОЙ ПОЛИТИКИ, и средний — тот самый, за который
+        # ферма уже дважды платила: политика пускает загрузку и запрещает
+        # отправку, счётчик работает, отчёт пуст.
+        ("отдаваемая политика пускает счётчик",
+         lambda c: c.__setitem__("_headers", c["_headers"].replace(
+             " https://www.googletagmanager.com;", ";", 1))),
+        ("отдаваемая политика пускает счётчик",
+         lambda c: c.__setitem__("_headers", c["_headers"].replace(
+             "connect-src https://*.google-analytics.com "
+             "https://*.analytics.google.com", "connect-src 'none'", 1))),
+        # Вторая политика под правилом пути. Cloudflare Pages ДОБАВИТ её к
+        # общей, браузер возьмёт пересечение — и виджеты снова уедут в
+        # никуда, как это уже было со всеми 145.
+        ("отдаваемая политика пускает счётчик",
+         lambda c: c.__setitem__("_headers", c["_headers"].replace(
+             "/embed/*\n  ! X-Frame-Options",
+             "/embed/*\n  ! X-Frame-Options\n"
+             "  Content-Security-Policy: default-src 'self'", 1))),
         # Поломка бьёт по АБЗАЦУ РАЗБОРА, а не по первому <p> за заголовком.
         # Прежняя ломала «первый <p> сразу за </h2>», и когда таблицу подняли
         # выше разбора, под удар попала подпись к столбцам — которую гейт
@@ -10917,7 +11201,7 @@ def selftest():
         ("политика совпадает с разметкой",
          lambda c: c.__setitem__("privacy/index.html",
                                  c["privacy/index.html"].replace(
-                                     'data-hosts="none"',
+                                     'data-host="www.googletagmanager.com"',
                                      'data-host="cdn.example.com"', 1))),
         ("политика совпадает с разметкой",
          lambda c: c.__setitem__(cell, c[cell].replace(

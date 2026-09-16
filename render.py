@@ -87,12 +87,75 @@ def snap_date():
 
 
 DATA_VINTAGE = "Energizer technical data, retrieved " + snap_date()
-CONTENT_DATE = date(2026, 9, 15)
+CONTENT_DATE = date(2026, 9, 16)
 
-# Ни счётчика, ни кук. Флаг читают разметка, текст политики и гейт — втроём
-# они разойтись не могут.
-ANALYTICS = False
-COOKIES = False
+# Счётчик и куки. Флаг читают разметка, текст политики и гейт — втроём они
+# разойтись не могут: гейт краснеет и на счётчике без раскрытия, и на
+# раскрытии без счётчика.
+ANALYTICS = True
+COOKIES = True
+
+# ИДЕНТИФИКАТОР РЕСУРСА GA4. Не секрет: он стоит в отданной разметке и сам по
+# себе не открывает ни одного отчёта — доступ даёт роль в самом GA4. Держится
+# ОТДЕЛЬНОЙ константой, а не полем THIRD_PARTIES, потому что гейт раскрытия
+# рекламы подменяет THIRD_PARTIES целиком, и чтение отсюда внутри него
+# вернуло бы чужое.
+ANALYTICS_ID = "G-FNMWBSPVZN"
+
+# Откуда грузится файл счётчика — и куда он потом стучится. Это ДВА разных
+# списка, и путать их нельзя: первый идёт в script-src и в разрешение гейта
+# на внешний скрипт, второй — в connect-src и img-src.
+#
+# Подстановочный знак в адресах сбора — не лень. gtag.js выбирает
+# РЕГИОНАЛЬНЫЙ приёмник во время работы (region1.google-analytics.com и так
+# далее), и политика, назвавшая только www.google-analytics.com, даёт
+# загруженный, исполняющийся, согласие уважающий счётчик, который не
+# отправляет НИЧЕГО. Сборка при этом зелёная, а байты совпадают — ровно тот
+# отказ, за который эта ферма уже дважды платила.
+ANALYTICS_ORIGIN = "https://www.googletagmanager.com"
+ANALYTICS_COLLECT = ("https://*.google-analytics.com",
+                     "https://*.analytics.google.com")
+ANALYTICS_SRC = "%s/gtag/js?id=%s" % (ANALYTICS_ORIGIN, ANALYTICS_ID)
+
+# Страны, где аналитическое хранилище запрещено ПО УМОЛЧАНИЮ: ЕЭЗ целиком
+# плюс Великобритания и Швейцария. Рекламные хранилища запрещены везде и без
+# оговорок, поэтому в списке их нет — они в самом объявлении.
+ANALYTICS_STRICT = ("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI",
+                    "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU",
+                    "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+                    "IS", "LI", "NO", "GB", "CH")
+
+
+def analytics_boot():
+    """Объявление согласия и запуск счётчика — одной строкой.
+
+    Порядок обязателен и необратим по смыслу: общее объявление первым,
+    региональное вторым. Второе перекрывает первое для названных стран;
+    поменяй их местами — запрет в ЕЭЗ перестанет действовать МОЛЧА.
+
+    Объявление обязано отработать ДО первой измерительной команды, поэтому
+    блок стоит в <head> вплотную к загрузчику, а не в конце страницы рядом с
+    поиском: загрузчик помечен async и вправе исполниться в любой момент
+    после докачки.
+    """
+    reg = ",".join("'%s'" % c for c in ANALYTICS_STRICT)
+    deny = ("'ad_storage':'denied','ad_user_data':'denied',"
+            "'ad_personalization':'denied'")
+    return ("window.dataLayer=window.dataLayer||[];"
+            "function gtag(){dataLayer.push(arguments);}"
+            "gtag('consent','default',{%s,'analytics_storage':'granted'});"
+            "gtag('consent','default',{%s,'analytics_storage':'denied',"
+            "'region':[%s]});"
+            "gtag('js',new Date());gtag('config','%s');"
+            % (deny, deny, reg, ANALYTICS_ID))
+
+
+def analytics_head():
+    """Загрузчик и объявление — РЯДОМ, в <head>, и только при флаге."""
+    if not ANALYTICS:
+        return ""
+    return ('<script async src="%s"></script>'
+            "<script>%s</script>" % (ANALYTICS_SRC, analytics_boot()))
 
 # ВСЁ СТОРОННЕЕ, ЗА ЧЕМ ПОЙДЁТ БРАУЗЕР, — здесь, и только здесь. Пусто.
 # Утверждение о приватности — это утверждение о том, что ГРУЗИТ БРАУЗЕР, а не
@@ -102,7 +165,14 @@ COOKIES = False
 # расхождении В ЛЮБУЮ СТОРОНУ: и на неназванном госте, и на названном госте,
 # которого на страницах нет.
 # (имя, хост, зачем, ставит ли куки)
-THIRD_PARTIES = ()
+#
+# Хост здесь ОДИН, и это тот, за которым разметка действительно ходит.
+# Приёмники google-analytics.com в разметке не встречаются ни разу — за ними
+# идёт уже загруженный скрипт, — и назвать их здесь значило бы уронить сборку
+# на «названном госте, которого на страницах нет». Они названы словами в
+# политике и в connect-src.
+THIRD_PARTIES = (("Google Analytics 4", "www.googletagmanager.com",
+                  "counts page views", True),)
 
 # Реклама больше НЕ ФЛАГ. Гейт, стоявший внутри условия `if not rd.ADS`, был
 # структурно неспособен покраснеть на той сборке, которая уезжает: сайт,
@@ -483,7 +553,7 @@ def shell_html(path, title, desc, body, side="", index=True, ptype="page",
 <meta name="robots" content="%(robots)s">
 <meta name="page-type" content="%(ptype)s">
 <link rel="canonical" href="https://%(domain)s%(path)s">
-%(share)s%(ld)s
+%(share)s%(ld)s%(ga)s
 <link rel="icon" href="data:image/svg+xml,%(icon)s">
 <style>%(css)s</style>
 </head>
@@ -511,6 +581,7 @@ def shell_html(path, title, desc, body, side="", index=True, ptype="page",
        "nav": nav, "foot": foot, "brand": brand, "year": CONTENT_DATE.year, "pub": PUBLISHER, "owner": FOOT_NAME,
        "mail": CONTACT, "vintage": esc(DATA_VINTAGE), "robots": robots,
        "ptype": ptype, "sc": sc, "share": share_meta(path, title, desc),
+       "ga": analytics_head(),
        "ld": ld_json(nodes)}
 
 
@@ -2498,15 +2569,39 @@ def ad_privacy_block():
 def legal_pages():
     """Политика ВЫВОДИТСЯ из списков, а не пишется руками: утверждение о
     приватности касается того, что грузит браузер."""
+    # ВЕТКА «СЧЁТЧИК ЕСТЬ» БЫЛА ЛОЖНОЙ ЕЩЁ ДО ТОГО, КАК ЕЁ ВКЛЮЧИЛИ. Она
+    # была написана заранее и описывала счётчик класса Plausible: «никогда не
+    # ставит опознаватель, который ходит за вами между сайтами». Для Google
+    # Analytics 4 это неправда. Рычаг, заготовленный впрок, отгрузил бы
+    # ложное утверждение в правовом документе при всех зелёных гейтах —
+    # поэтому текст переписан ВМЕСТЕ с включением флага, а не после.
     an = ("<p>This site runs no analytics of any kind. No page view is "
           "counted and no visitor is identified.</p>") if not ANALYTICS else (
-        "<p>This site uses a privacy-focused analytics service to count page "
-        "views. It records the page address, the referring site and a coarse "
-        "country, and never sets an identifier that follows you between "
-        "sites.</p>")
+        "<p>This site counts page views with Google Analytics 4, a Google "
+        "product. The file that does the counting is fetched from "
+        "www.googletagmanager.com and what it records goes to Google. It "
+        "records the address of the page, the site that sent you here, an "
+        "approximate location no finer than a city, and the kind of browser "
+        "and device you are using. It is not told your name or your email, "
+        "and nothing you type into the search box on this site is sent to "
+        "it.</p>"
+        "<p>Advertising storage, advertising user data and advertising "
+        "personalisation are refused on every page and in every country, so "
+        "nothing measured here feeds advertising profiling. In the European "
+        "Economic Area, the United Kingdom and Switzerland the analytics "
+        "storage is refused as well, by default and without asking: the "
+        "counter reports those visits without writing anything to your "
+        "device.</p>")
     ck = ("<p>This site sets no cookies and uses no local storage.</p>"
           if not COOKIES else
-          "<p>Cookies are used only where you have agreed to them.</p>")
+          "<p>Outside the European Economic Area, the United Kingdom and "
+          "Switzerland the counter writes cookies of its own, named "
+          "<code>_ga</code> and <code>_ga_</code> followed by the property "
+          "identifier. They tell one browser from another so a second page "
+          "in the same visit is not counted as a second visitor, and they "
+          "expire two years after your last visit. Inside those countries "
+          "neither cookie is written. Nothing else here sets a cookie, and "
+          "no local storage is used.</p>")
     body = ('<p class="bx-crumb"><a href="/">Index</a> / Privacy</p>'
             "<h1>Privacy</h1>"
             '<p class="bx-lead">This page describes what your browser fetches '
@@ -3178,10 +3273,25 @@ def window_for(h2):
 # проверяет то же самое по отданным байтам с другой стороны.
 _YEAR_S = 365 * 24 * 60 * 60
 
-_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; "
-        "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
-        "font-src 'self'; connect-src 'none'; object-src 'none'; "
-        "base-uri 'none'; form-action 'none'")
+# ПОЛИТИКА ОДНА И ЛЕЖИТ В /*. Второй, под /embed/*, здесь быть не может:
+# Cloudflare Pages ДОБАВЛЯЕТ заголовок правила пути к общему, а не заменяет
+# его; две политики пересекаются, и это пересечение уже один раз сняло с сети
+# все 145 виджетов. Виджеты наследуют общую политику — она для них шире
+# необходимого, и это принято сознательно, потому что известная альтернатива
+# смертельна.
+#
+# Счётчику нужны ТРИ разрешения, и каждое названо явно, а не оставлено на
+# откат к default-src: откуда грузится файл (script-src), куда он потом
+# стучится (connect-src) и чем он стучится, когда sendBeacon недоступен
+# (img-src). Пропусти connect-src — и счётчик загрузится, исполнится, уважит
+# согласие и не отправит ничего.
+_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'%(sci)s; "
+        "style-src 'self' 'unsafe-inline'; img-src 'self' data:%(img)s; "
+        "font-src 'self'; connect-src %(con)s; object-src 'none'; "
+        "base-uri 'none'; form-action 'none'") % {
+    "sci": (" " + ANALYTICS_ORIGIN) if ANALYTICS else "",
+    "img": (" " + ANALYTICS_COLLECT[0]) if ANALYTICS else "",
+    "con": " ".join(ANALYTICS_COLLECT) if ANALYTICS else "'none'"}
 
 # Комментарии здесь ПО-АНГЛИЙСКИ: это отдаваемый файл, а не исходник, и гейт
 # «язык страницы английский» прав, когда краснеет на русском слове в нём.
